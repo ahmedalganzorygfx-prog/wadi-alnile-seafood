@@ -86,7 +86,6 @@ def inject_css():
     .stApp { background: #f8fafc; direction: rtl; }
     [data-testid="stSidebar"] { direction: rtl; }
     .topbar {background:#172554;color:#cffafe;padding:9px 18px;border-radius:12px;margin-bottom:14px;font-size:14px}
-    .brand {background:white;border:1px solid #e2e8f0;border-radius:18px;padding:18px 22px;box-shadow:0 4px 16px #0f172a0c;margin-bottom:16px}
     .brand h1 {color:#1e3a8a;font-size:28px;font-weight:900;margin:0}
     .brand p {color:#64748b;margin:0;font-size:13px}
     .hero {background:linear-gradient(100deg,#172554,#1e3a8a,#164e63);color:white;text-align:center;padding:30px 14px;border-radius:20px;margin:12px 0 20px}
