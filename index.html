@@ -19,17 +19,16 @@
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <!-- صورة شعار المطعم الحقيقي -->
-                <img src="https://i.ibb.co/6y402Hh/239356577-2707937286172377-1215017095404098342-n.jpg" alt="شعار مطاعم أسماك وادي النيل" class="w-12 h-12 rounded-full object-cover border-2 border-cyan-400 bg-white shadow" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=100&auto=format&fit=crop&q=80';">
+                <img src="https://i.ibb.co/6y402Hh/239356577-2707937286172377-1215017095404098342-n.jpg" alt="شعار مطاعم أسماك وادي النيل" class="w-10 h-10 rounded-full object-cover border border-cyan-400 bg-white shadow">
                 <div>
-                    <h1 class="text-lg font-black text-cyan-400 leading-tight">أسماك وادي النيل</h1>
+                    <h1 class="text-base font-black text-cyan-400 leading-tight">أسماك وادي النيل</h1>
                     <span class="text-xs text-slate-200">للمأكولات البحرية الطازجة</span>
                 </div>
             </div>
             
             <div class="flex items-center gap-3">
-                <button onclick="toggleCart()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-extrabold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow">
-                    🛒 السلة (<span id="cart-count" class="bg-slate-900 text-cyan-400 px-2 py-0.5 rounded-md text-sm">0</span>)
+                <button onclick="toggleCart()" class="bg-cyan-500 hover:bg-cyan-600 text-slate-900 font-extrabold px-4 py-2 rounded-xl transition flex items-center gap-2 shadow text-sm">
+                    🛒 السلة (<span id="cart-count" class="bg-slate-900 text-cyan-400 px-2 py-0.5 rounded-md text-xs">0</span>)
                 </button>
             </div>
         </div>
@@ -38,6 +37,15 @@
     <!-- Main Container -->
     <main class="container mx-auto px-4 py-6 max-w-6xl flex-grow">
         
+        <!-- شعار المطعم في منتصف الصفحة (Hero Section Logo) -->
+        <div class="flex flex-col items-center justify-center mb-8 bg-gradient-to-b from-blue-900 to-blue-800 text-white p-6 rounded-3xl shadow-lg text-center">
+            <div class="w-28 h-28 rounded-full bg-white p-1.5 shadow-2xl mb-4 border-4 border-cyan-400 overflow-hidden">
+                <img src="https://i.ibb.co/6y402Hh/239356577-2707937286172377-1215017095404098342-n.jpg" alt="شعار مطاعم أسماك وادي النيل" class="w-full h-full object-cover rounded-full">
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-black text-cyan-300 mb-1">سلسلة مطاعم أسماك وادي النيل</h2>
+            <p class="text-xs sm:text-sm text-slate-200">أطزج الأسماك والمأكولات البحرية الطازجة يومياً من البحر لمائدتك</p>
+        </div>
+
         <!-- Search Bar Section -->
         <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 mb-6 flex items-center gap-2">
             <span class="text-slate-400 px-2">🔍</span>
@@ -82,10 +90,9 @@
                 </ul>
             </div>
             <div>
-                <h4 class="text-white font-bold text-base mb-3 border-r-4 border-cyan-400 pr-2">تواصل معنا على الخط الساخن</h4>
-                <p class="text-sm text-slate-400 mb-2">📞 الخط الساخن الموحد: <span class="text-cyan-400 font-bold">19974</span></p>
+                <h4 class="text-white font-bold text-base mb-3 border-r-4 border-cyan-400 pr-2">تواصل معنا والخط الساخن</h4>
+                <p class="text-sm text-slate-400 mb-2">📞 الخط الساخن الموحد: <span class="text-cyan-400 font-bold">01103949998</span></p>
                 <p class="text-sm text-slate-400">تابعنا على صفحتنا الرسمية في فيسبوك لطلب العروض اليومية.</p>
-                <p class="text-sm text-slate-400 mb-2">مطاعم اسماك وادي النيل<span class="text-cyan-400 font-bold"</span></p>
             </div>
         </div>
         <div class="border-t border-slate-800 pt-4 text-center text-xs text-slate-500">
