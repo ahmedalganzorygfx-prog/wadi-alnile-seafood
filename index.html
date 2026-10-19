@@ -19,10 +19,8 @@
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <!-- شق شعار الهيدر -->
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center border-2 border-cyan-300 shadow">
-                    <span class="text-xl">🐟</span>
-                </div>
+                <!-- شعار الهيدر مسحوب من مجلد images (استبدل logo.jpg بالاسم الحقيقي لصورة اللوجو) -->
+                <img src="images/logo.jpg" alt="شعار وادي النيل" class="w-10 h-10 rounded-full object-cover border border-cyan-400 bg-white shadow" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=100&auto=format&fit=crop&q=80';">
                 <div>
                     <h1 class="text-sm font-black text-cyan-400 leading-tight">أسماك وادي النيل</h1>
                     <span class="text-[10px] text-slate-300">للمأكولات البحرية</span>
@@ -40,19 +38,11 @@
     <!-- Main Container -->
     <main class="container mx-auto px-4 py-6 max-w-6xl flex-grow">
         
-        <!-- بانر الشعار الاحترافي في منتصف الصفحة (مطابق لهوية وادي النيل) -->
+        <!-- شعار المطعم الكبير في منتصف الصفحة مسحوب من مجلد images -->
         <div class="flex flex-col items-center justify-center mb-8 bg-gradient-to-b from-blue-900 via-blue-800 to-cyan-900 text-white p-8 rounded-3xl shadow-xl text-center border border-cyan-500/30">
-            <!-- دائرة الشعار البحرية المتطورة -->
-            <div class="relative w-28 h-28 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-1 shadow-2xl mb-4 flex items-center justify-center border-4 border-cyan-300">
-                <div class="w-full h-full bg-blue-950 rounded-full flex flex-col items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-blue-900 opacity-50 flex items-end justify-around pb-1">
-                        <span class="text-xs text-cyan-300">﹏﹏﹏</span>
-                    </div>
-                    <span class="text-4xl z-10">🐬</span>
-                    <span class="text-[10px] font-black text-amber-300 tracking-wider z-10 mt-0.5">W N</span>
-                </div>
+            <div class="w-28 h-28 rounded-full bg-white p-1 shadow-2xl mb-4 border-4 border-cyan-400 overflow-hidden flex items-center justify-center">
+                <img src="images/logo.jpg" alt="شعار مطاعم أسماك وادي النيل" class="w-full h-full object-cover rounded-full">
             </div>
-            
             <h2 class="text-2xl sm:text-3xl font-black text-cyan-300 mb-1">سلسلة مطاعم أسماك وادي النيل</h2>
             <p class="text-xs sm:text-sm text-slate-200">أطزج الأسماك والمأكولات البحرية الطازجة يومياً من البحر لمائدتك</p>
         </div>
@@ -87,7 +77,7 @@
         <div class="container mx-auto px-4 max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 rounded-full bg-blue-900 flex items-center justify-center text-lg border border-cyan-400">🐟</div>
+                    <img src="images/logo.jpg" alt="Logo" class="w-10 h-10 rounded-full object-cover bg-white shadow">
                     <h3 class="text-white font-bold text-lg">مطاعم أسماك وادي النيل</h3>
                 </div>
                 <p class="text-slate-400 text-sm leading-relaxed">نقدم أطزج الأسماك والمأكولات البحرية الطازجة يومياً بخبرة تلبي كافة تطلعات عشاق السي فود في مصر.</p>
