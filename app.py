@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
 موقع مطاعم أسماك وادي النيل - نسخة Python / Streamlit
 التشغيل:
     pip install -r requirements.txt
