@@ -1,248 +1,1129 @@
-import streamlit as st
-import urllib.parse
+import os
+from urllib.parse import quote
 
-# إعدادات الصفحة
+import pandas as pd
+import streamlit as st
+
+from database import (
+    init_db,
+    get_setting,
+    get_settings,
+    save_settings,
+    get_products,
+    get_product,
+    save_product,
+    delete_product,
+    create_order,
+    get_orders,
+    get_order_items,
+    update_order_status,
+)
+
+
+# =========================================================
+# إعداد الصفحة
+# =========================================================
+
 st.set_page_config(
     page_title="مطاعم أسماك وادي النيل",
     page_icon="🐟",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# تخصيص التصميم ولغة الواجهة (CSS لتطبيق الهوية والألوان والشكل المطلوب RTL)
-st.markdown("""
+
+# =========================================================
+# تنسيق الواجهة العربية RTL
+# =========================================================
+
+st.markdown(
+    """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-    
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
     html, body, [class*="css"] {
-        font-family: 'Cairo', sans-serif;
-        direction: rtl;
-        text-align: right;
+        font-family: 'Cairo', sans-serif !important;
     }
-    
+
     .stApp {
         direction: rtl;
-        background-color: #f1f5f9;
-    }
-    
-    /* شريط العنوان العلوي */
-    .header-box {
-        background-color: #0f172a;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 12px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        text-align: right;
+        background: #f5f7fb;
     }
 
-    /* بانر الشعار في منتصف الصفحة */
-    .hero-banner {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%);
-        padding: 30px;
-        border-radius: 20px;
-        color: white;
-        text-align: center;
-        margin-bottom: 25px;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
-        border: 1px solid rgba(56, 189, 248, 0.3);
+    [data-testid="stSidebar"] {
+        direction: rtl;
+        text-align: right;
+        background: #102a43;
     }
 
-    /* بطاقة المنتج */
-    .product-card {
-        background: white;
-        padding: 15px;
-        border-radius: 16px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        border: 1px solid #e2e8f0;
-        margin-bottom: 15px;
+    [data-testid="stSidebar"] * {
+        color: #ffffff;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
         text-align: right;
     }
-    
-    .price-tag {
-        color: #0369a1;
-        font-weight: 900;
-        font-size: 1.1rem;
+
+    .block-container {
+        max-width: 1350px;
+        padding-top: 1.4rem;
+        padding-bottom: 3rem;
     }
 
-    /* تنسيق الحقول وعناصر الإدخال لغة عربية */
-    .stTextInput label, .stSelectbox label, .stNumberInput label {
-        text-align: right !important;
-        direction: rtl !important;
+    .hero {
+        padding: 36px 30px;
+        border-radius: 22px;
+        background: linear-gradient(125deg, #082f49, #075985, #0e7490);
+        color: #ffffff;
+        text-align: center;
+        margin-bottom: 26px;
+        box-shadow: 0 12px 35px rgba(8, 47, 73, 0.16);
+    }
+
+    .hero h1 {
+        color: #ffffff;
+        font-size: clamp(27px, 4vw, 44px);
+        font-weight: 900;
+        margin: 0 0 10px 0;
+    }
+
+    .hero p {
+        color: #e0f2fe;
+        font-size: 17px;
+        margin: 0;
+    }
+
+    .section-title {
+        color: #102a43;
+        font-size: 25px;
+        font-weight: 900;
+        margin: 18px 0;
+    }
+
+    .product-card {
+        background: #ffffff;
+        border: 1px solid #e5eaf1;
+        border-radius: 18px;
+        padding: 16px;
+        min-height: 155px;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, 0.045);
+        margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+        color: #102a43;
+        font-size: 19px;
+        font-weight: 800;
+        margin: 4px 0 8px 0;
+    }
+
+    .product-card p {
+        color: #64748b;
+        font-size: 13px;
+        min-height: 35px;
+        margin-bottom: 10px;
+    }
+
+    .price {
+        color: #087f5b;
+        font-weight: 900;
+        font-size: 20px;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+
+    .muted {
+        color: #64748b;
+    }
+
+    .stButton > button,
+    .stFormSubmitButton > button {
+        border-radius: 10px;
+        font-weight: 800;
+        min-height: 42px;
+    }
+
+    div[data-testid="stMetric"] {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    div[data-testid="stDataFrame"] {
+        direction: rtl;
+    }
+
+    @media (max-width: 768px) {
+        .block-container {
+            padding: 0.8rem;
+        }
+        .hero {
+            padding: 24px 14px;
+            border-radius: 16px;
+        }
+        .hero p {
+            font-size: 14px;
+        }
     }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
 
-# قاعدة بيانات المنتجات مع الصور والأسعار والتصنيفات
-menu_products = [
-    {"id": 1, "name": "شوربة سي فود مخلية", "category": "الشوربات", "price": 275.00, "img": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&auto=format&fit=crop&q=80"},
-    {"id": 2, "name": "شوربة الجمبري", "category": "الشوربات", "price": 275.00, "img": "https://images.unsplash.com/photo-1594041680534-e8c8cdebd659?w=400&auto=format&fit=crop&q=80"},
-    {"id": 3, "name": "ملوخية بالجمبري", "category": "الشوربات", "price": 128.00, "img": "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400&auto=format&fit=crop&q=80"},
-    {"id": 4, "name": "رغيف جمبري مخصوص", "category": "الساندوتشات", "price": 200.00, "img": "https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&auto=format&fit=crop&q=80"},
-    {"id": 5, "name": "رغيف سمك فيليه", "category": "الساندوتشات", "price": 104.00, "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=80"},
-    {"id": 6, "name": "رغيف حواوشي وادي النيل", "category": "الساندوتشات", "price": 104.00, "img": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&auto=format&fit=crop&q=80"},
-    {"id": 7, "name": "أرز وادي النيل بالجمبري", "category": "الأرز والـمكرونة", "price": 200.00, "img": "https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?w=400&auto=format&fit=crop&q=80"},
-    {"id": 8, "name": "مكرونة سي فود بصوص الكريمة", "category": "الأرز والـمكرونة", "price": 176.00, "img": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&auto=format&fit=crop&q=80"},
-    {"id": 9, "name": "مكرونة سي فود بصوص الطماطم", "category": "الأرز والـمكرونة", "price": 200.00, "img": "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&auto=format&fit=crop&q=80"},
-    {"id": 10, "name": "وجبة مقلي (جمبري، فيليه، سبيط)", "category": "الوجبات", "price": 240.00, "img": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=400&auto=format&fit=crop&q=80"},
-    {"id": 11, "name": "وجبة جمبري فاهيتا", "category": "الوجبات", "price": 400.00, "img": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&auto=format&fit=crop&q=80"},
-    {"id": 12, "name": "طاجن ميكس سي فود", "category": "الطواجن", "price": 400.00, "img": "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&auto=format&fit=crop&q=80"},
-    {"id": 13, "name": "سلطة ميكس مأكولات بحرية", "category": "السلطات والمقبلات", "price": 120.00, "img": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&auto=format&fit=crop&q=80"},
-    {"id": 14, "name": "طحينة وادي النيل الخاصة", "category": "السلطات والمقبلات", "price": 45.00, "img": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400&auto=format&fit=crop&q=80"}
-]
 
-# تهيئة عربة التسوق
-if "cart" not in st.session_state:
-    st.session_state.cart = {}
+# =========================================================
+# التهيئة العامة
+# =========================================================
 
-# الهيدر العلوي
-st.markdown("""
-    <div class="header-box">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 1.5rem;">🐟</span>
-            <span style="font-size: 1.2rem; font-weight: 900; color: #38bdf8;">أسماك وادي النيل</span>
+try:
+    init_db()
+except Exception as exc:
+    st.error(
+        "تعذر الاتصال بقاعدة البيانات. راجع إعداد DATABASE_URL "
+        "في Streamlit Secrets."
+    )
+    with st.expander("تفاصيل الخطأ"):
+        st.code(str(exc))
+    st.stop()
+
+
+def money(value):
+    """تنسيق السعر."""
+    try:
+        amount = float(value or 0)
+    except (ValueError, TypeError):
+        amount = 0
+    currency = get_setting("currency", "جنيه")
+    return f"{amount:,.2f} {currency}"
+
+
+def get_admin_password():
+    """كلمة مرور لوحة الإدارة من Secrets أو البيئة."""
+    try:
+        password = st.secrets.get("ADMIN_PASSWORD", "")
+    except Exception:
+        password = ""
+
+    return password or os.environ.get("ADMIN_PASSWORD", "")
+
+
+def normalize_whatsapp(number):
+    """إزالة الرموز غير الرقمية من رقم واتساب."""
+    return "".join(char for char in str(number) if char.isdigit())
+
+
+def hero():
+    restaurant = get_setting(
+        "restaurant_name",
+        "مطاعم أسماك وادي النيل",
+    )
+    subtitle = get_setting(
+        "restaurant_subtitle",
+        "أشهى المأكولات البحرية الطازجة",
+    )
+    announcement = get_setting("announcement", "")
+
+    st.markdown(
+        f"""
+        <div class="hero">
+            <div style="font-size:42px; margin-bottom:8px">🐟</div>
+            <h1>{restaurant}</h1>
+            <p>{subtitle}</p>
+            <div style="
+                margin-top:18px;
+                font-size:14px;
+                color:#ffffff;
+                opacity:.9;
+            ">{announcement}</div>
         </div>
-        <div style="font-size: 0.9rem; background: #0284c7; padding: 5px 12px; border-radius: 8px; font-weight: bold;">
-            الخط الساخن: 01103949998
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def admin_logged_in():
+    return bool(st.session_state.get("admin_logged_in", False))
+
+
+# =========================================================
+# القائمة الجانبية
+# =========================================================
+
+with st.sidebar:
+    st.markdown(
+        """
+        <div style="text-align:center;padding:16px 4px 22px">
+            <div style="font-size:48px">🐟</div>
+            <div style="font-size:21px;font-weight:900">
+                وادي النيل
+            </div>
+            <div style="font-size:12px;color:#cbd5e1">
+                مطاعم الأسماك والمأكولات البحرية
+            </div>
         </div>
-    </div>
-""", unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
-# بانر الشعار في منتصف الصفحة
-st.markdown("""
-    <div class="hero-banner">
-        <div style="font-size: 3rem; margin-bottom: 5px;">🐬</div>
-        <h2 style="font-size: 2rem; font-weight: 900; color: #38bdf8; margin-bottom: 5px;">سلسلة مطاعم أسماك وادي النيل</h2>
-        <p style="font-size: 1rem; color: #e2e8f0; font-weight: 600;">أطزج الأسماك والمأكولات البحرية الطازجة يومياً من البحر لمائدتك</p>
-    </div>
-""", unsafe_allow_html=True)
+    page_options = [
+        "الرئيسية وقائمة الطعام",
+        "سلة المشتريات",
+        "تواصل معنا",
+        "لوحة الإدارة",
+    ]
 
-# شريط البحث العلوي
-search_query = st.text_input("بحث", placeholder="ابحث عن منتج أو وجبة...", label_visibility="collapsed")
+    page = st.radio(
+        "القائمة الرئيسية",
+        page_options,
+        label_visibility="collapsed",
+    )
 
-# أزرار التصنيفات الأفقية (Tabs)
-categories = [
-    "الكل", 
-    "الشوربات", 
-    "الساندوتشات", 
-    "الأرز والـمكرونة", 
-    "الوجبات", 
-    "الطواجن", 
-    "السلطات والمقبلات"
-]
+    st.divider()
 
-selected_category = st.radio("التصنيفات", categories, horizontal=True, label_visibility="collapsed")
+    st.caption("طازج من البحر إلى مائدتك 🌊")
 
-st.divider()
 
-# تقسيم الشاشة (المنتجات يمين / سلة التسوق يسار)
-products_col, cart_col = st.columns([2, 1], gap="large")
+# =========================================================
+# الرئيسية وقائمة الطعام
+# =========================================================
 
-with products_col:
-    # فلترة المنتجات بناءً على البحث أو التصنيف
-    filtered_items = menu_products
-    if search_query:
-        filtered_items = [p for p in menu_products if search_query.lower() in p["name"].lower()]
-    elif selected_category != "الكل":
-        filtered_items = [p for p in menu_products if p["category"] == selected_category]
+if page == "الرئيسية وقائمة الطعام":
+    hero()
 
-    if not filtered_items:
-        st.warning("عذراً، لم نجد منتجات مطابقة لبحثك.")
+    categories_products = get_products(available_only=True)
+
+    if not categories_products:
+        st.info("لا توجد أصناف متاحة حاليًا.")
     else:
-        # عرض المنتجات في شبكة من عمودين
-        grid_cols = st.columns(2)
-        for idx, product in enumerate(filtered_items):
-            target_col = grid_cols[idx % 2]
-            with target_col:
-                with st.container(border=True):
-                    # تم تصحيح طريقة عرض الصورة لتعمل بدون أخطاء
-                    st.image(product["img"])
-                    st.markdown(f"**{product['name']}**")
-                    st.markdown(f"<span class='price-tag'>{product['price']:.2f} ج.م</span>", unsafe_allow_html=True)
-                    
-                    if st.button("إضافة 🛒", key=f"add_{product['id']}", use_container_width=True):
-                        if product["id"] in st.session_state.cart:
-                            st.session_state.cart[product["id"]]["qty"] += 1
-                        else:
-                            st.session_state.cart[product["id"]] = {
-                                "name": product["name"],
-                                "price": product["price"],
-                                "qty": 1
-                            }
-                        st.toast(f"تمت إضافة '{product['name']}' للسلة!", icon="✅")
+        categories = sorted(
+            {
+                product["category"]
+                for product in categories_products
+                if product["category"]
+            }
+        )
 
-with cart_col:
-    st.markdown("### 🛒 سلة طلباتك")
-    
-    if not st.session_state.cart:
-        st.info("السلة فارغة حالياً. اختر وجباتك المفضلة!")
+        chosen_category = st.selectbox(
+            "اختر القسم",
+            ["كل الأصناف"] + categories,
+        )
+
+        search = st.text_input(
+            "🔎 ابحث عن وجبتك",
+            placeholder="اكتب اسم السمك أو الصنف...",
+        )
+
+        filtered = categories_products
+
+        if chosen_category != "كل الأصناف":
+            filtered = [
+                p for p in filtered
+                if p["category"] == chosen_category
+            ]
+
+        if search.strip():
+            term = search.strip().casefold()
+            filtered = [
+                p for p in filtered
+                if term in p["name"].casefold()
+                or term in p["description"].casefold()
+            ]
+
+        st.markdown(
+            '<div class="section-title">🍽️ قائمة الطعام</div>',
+            unsafe_allow_html=True,
+        )
+
+        if not filtered:
+            st.warning("لم نعثر على أصناف مطابقة للبحث.")
+        else:
+            cols_per_row = 3
+
+            for start in range(0, len(filtered), cols_per_row):
+                row_products = filtered[start:start + cols_per_row]
+                cols = st.columns(cols_per_row)
+
+                for col, product in zip(cols, row_products):
+                    with col:
+                        with st.container(border=True):
+                            image_url = product["image_url"]
+
+                            if image_url:
+                                st.image(
+                                    image_url,
+                                    use_container_width=True,
+                                )
+                            else:
+                                st.markdown(
+                                    "<div style='text-align:center;"
+                                    "font-size:60px'>🐟</div>",
+                                    unsafe_allow_html=True,
+                                )
+
+                            st.markdown(
+                                f"### {product['name']}"
+                            )
+                            st.caption(product["category"])
+                            st.write(product["description"])
+                            st.markdown(
+                                f"<div class='price'>{money(product['price'])}</div>",
+                                unsafe_allow_html=True,
+                            )
+
+                            quantity = st.number_input(
+                                "الكمية",
+                                min_value=1,
+                                max_value=50,
+                                value=1,
+                                step=1,
+                                key=f"qty_{product['id']}",
+                            )
+
+                            if st.button(
+                                "➕ أضف إلى السلة",
+                                key=f"add_{product['id']}",
+                                use_container_width=True,
+                            ):
+                                cart = st.session_state.setdefault(
+                                    "cart", {}
+                                )
+                                pid = int(product["id"])
+
+                                if pid in cart:
+                                    cart[pid]["quantity"] += int(quantity)
+                                else:
+                                    cart[pid] = {
+                                        "id": pid,
+                                        "name": product["name"],
+                                        "price": float(product["price"]),
+                                        "quantity": int(quantity),
+                                    }
+
+                                st.success(
+                                    f"تمت إضافة {product['name']} إلى السلة."
+                                )
+
+
+# =========================================================
+# سلة المشتريات وإتمام الطلب
+# =========================================================
+
+elif page == "سلة المشتريات":
+    hero()
+    st.markdown(
+        '<div class="section-title">🛒 سلة المشتريات</div>',
+        unsafe_allow_html=True,
+    )
+
+    cart = st.session_state.setdefault("cart", {})
+
+    if not cart:
+        st.info("سلة المشتريات فارغة. أضف بعض الأصناف أولًا.")
     else:
-        total_amount = 0
-        items_to_remove = []
-        
-        for item_id, details in st.session_state.cart.items():
-            subtotal = details["price"] * details["qty"]
-            total_amount += subtotal
-            
-            c1, c2, c3 = st.columns([3, 2, 2])
-            with c1:
-                st.write(f"**{details['name']}**")
-            with c2:
-                new_qty = st.number_input(
-                    "الكمية", 
-                    min_value=0, 
-                    value=details["qty"], 
-                    key=f"qty_{item_id}", 
-                    label_visibility="collapsed"
+        for pid in list(cart.keys()):
+            item = cart[pid]
+
+            with st.container(border=True):
+                col1, col2, col3, col4 = st.columns(
+                    [3, 1.3, 1.5, 1]
                 )
-                if new_qty == 0:
-                    items_to_remove.append(item_id)
-                else:
-                    st.session_state.cart[item_id]["qty"] = new_qty
-            with c3:
-                st.write(f"`{subtotal:.2f} ج`")
-        
-        for item_id in items_to_remove:
-            del st.session_state.cart[item_id]
-            st.rerun()
-            
-        st.divider()
-        st.markdown(f"#### الإجمالي الكلي: `{total_amount:.2f} ج.م`")
-        
-        st.markdown("#### بيانات التوصيل:")
-        cust_name = st.text_input("اسمك الكريم:")
-        cust_phone = st.text_input("رقم الهاتف:")
-        cust_address = st.text_input("عنوان التوصيل بالتفصيل:")
-        
-        if st.button("تأكيد الطلب عبر واتساب 📲", type="primary", use_container_width=True):
-            if not cust_name or not cust_phone or not cust_address:
-                st.error("الرجاء إدخال الاسم، رقم الهاتف، وعنوان التوصيل.")
-            else:
-                msg = f"🛒 *طلب جديد من موقع مطاعم أسماك وادي النيل*\n\n"
-                msg += f"👤 الاسم: {cust_name}\n"
-                msg += f"📞 الهاتف: {cust_phone}\n"
-                msg += f"📍 العنوان: {cust_address}\n\n"
-                msg += "📋 *المنتجات:*\n"
-                for item_id, details in st.session_state.cart.items():
-                    msg += f"- {details['name']} ({details['qty']}x) - {details['price'] * details['qty']} ج.م\n"
-                msg += f"\n💰 *الإجمالي الكلي:* {total_amount:.2f} ج.م"
-                
-                whatsapp_url = f"https://wa.me/201103949998?text={urllib.parse.quote(msg)}"
-                st.success("تم تجهيز الطلب! اضغط أدناه للإرسال الفوري عبر واتساب:")
-                st.markdown(f'<a href="{whatsapp_url}" target="_blank"><button style="background-color:#16a34a; color:white; padding:10px; border-radius:10px; width:100%; border:none; font-weight:bold; cursor:pointer;">إرسال الطلب للواتساب 🚀</button></a>', unsafe_allow_html=True)
 
-# الفوتر أسفل الصفحة
+                with col1:
+                    st.markdown(f"**{item['name']}**")
+
+                with col2:
+                    st.write(money(item["price"]))
+
+                with col3:
+                    new_qty = st.number_input(
+                        "الكمية",
+                        min_value=1,
+                        max_value=50,
+                        value=int(item["quantity"]),
+                        key=f"cart_qty_{pid}",
+                    )
+                    cart[pid]["quantity"] = int(new_qty)
+
+                with col4:
+                    if st.button(
+                        "حذف",
+                        key=f"remove_{pid}",
+                    ):
+                        del cart[pid]
+                        st.rerun()
+
+        subtotal = sum(
+            item["price"] * item["quantity"]
+            for item in cart.values()
+        )
+
+        delivery_fee = float(
+            get_setting("delivery_fee", "25") or 0
+        )
+        free_minimum = float(
+            get_setting("free_delivery_minimum", "0") or 0
+        )
+
+        if free_minimum > 0 and subtotal >= free_minimum:
+            delivery_fee = 0
+
+        total = subtotal + delivery_fee
+
+        st.divider()
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("قيمة الأصناف", money(subtotal))
+        col2.metric("التوصيل", money(delivery_fee))
+        col3.metric("الإجمالي", money(total))
+
+        st.markdown("### 📝 بيانات التوصيل")
+
+        with st.form("checkout_form"):
+            customer_name = st.text_input(
+                "الاسم بالكامل *",
+                placeholder="اسم العميل",
+            )
+            phone = st.text_input(
+                "رقم الهاتف *",
+                placeholder="01xxxxxxxxx",
+            )
+            address = st.text_area(
+                "عنوان التوصيل بالتفصيل *",
+                placeholder="المحافظة، المنطقة، الشارع، رقم العقار",
+            )
+            branch_name = st.text_input(
+                "الفرع المطلوب",
+                value="الفرع الرئيسي",
+            )
+            notes = st.text_area(
+                "ملاحظات الطلب",
+                placeholder="تعليمات إضافية أو طريقة التسوية المفضلة",
+            )
+
+            submitted = st.form_submit_button(
+                "تأكيد الطلب",
+                use_container_width=True,
+                type="primary",
+            )
+
+        if submitted:
+            if not customer_name.strip():
+                st.error("يرجى كتابة اسم العميل.")
+            elif not phone.strip():
+                st.error("يرجى كتابة رقم الهاتف.")
+            elif not address.strip():
+                st.error("يرجى كتابة عنوان التوصيل.")
+            else:
+                try:
+                    cart_items = list(cart.values())
+
+                    order_id, saved_subtotal, saved_total = create_order(
+                        customer_name=customer_name.strip(),
+                        phone=phone.strip(),
+                        address=address.strip(),
+                        notes=notes.strip(),
+                        branch_name=branch_name.strip(),
+                        cart_items=cart_items,
+                        delivery_fee=delivery_fee,
+                    )
+
+                    restaurant_phone = normalize_whatsapp(
+                        get_setting("whatsapp_number", "")
+                    )
+
+                    message_lines = [
+                        f"طلب جديد رقم {order_id}",
+                        get_setting(
+                            "restaurant_name",
+                            "مطاعم أسماك وادي النيل",
+                        ),
+                        "",
+                        f"العميل: {customer_name}",
+                        f"الهاتف: {phone}",
+                        f"العنوان: {address}",
+                        f"الفرع: {branch_name}",
+                        "",
+                        "تفاصيل الطلب:",
+                    ]
+
+                    for item in cart_items:
+                        line_total = (
+                            float(item["price"])
+                            * int(item["quantity"])
+                        )
+                        message_lines.append(
+                            f"- {item['name']} × {item['quantity']}"
+                            f" = {line_total:,.2f}"
+                        )
+
+                    message_lines.extend(
+                        [
+                            "",
+                            f"قيمة الأصناف: {saved_subtotal:,.2f}",
+                            f"التوصيل: {delivery_fee:,.2f}",
+                            f"الإجمالي: {saved_total:,.2f}",
+                            f"ملاحظات: {notes or 'لا يوجد'}",
+                        ]
+                    )
+
+                    message = "\n".join(message_lines)
+
+                    st.session_state["last_order_id"] = order_id
+                    st.session_state["last_order_message"] = message
+                    st.session_state["cart"] = {}
+
+                    st.success(
+                        f"تم حفظ طلبك بنجاح. رقم الطلب: {order_id}"
+                    )
+
+                    if restaurant_phone:
+                        whatsapp_url = (
+                            "https://wa.me/"
+                            + restaurant_phone
+                            + "?text="
+                            + quote(message)
+                        )
+
+                        st.link_button(
+                            "📲 إرسال تفاصيل الطلب عبر واتساب",
+                            whatsapp_url,
+                            use_container_width=True,
+                        )
+                    else:
+                        st.warning(
+                            "تم حفظ الطلب في قاعدة البيانات، "
+                            "لكن رقم واتساب المطعم لم يُضبط بعد."
+                        )
+
+                except Exception as exc:
+                    st.error("تعذر حفظ الطلب. حاول مرة أخرى.")
+                    with st.expander("تفاصيل الخطأ"):
+                        st.code(str(exc))
+
+
+# =========================================================
+# التواصل ومعلومات المطعم
+# =========================================================
+
+elif page == "تواصل معنا":
+    hero()
+
+    settings = get_settings()
+
+    st.markdown(
+        '<div class="section-title">📍 تواصل معنا</div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"""
+        <div class="info-card">
+            <h3>📌 عنوان المطعم</h3>
+            <p>{settings.get('restaurant_address', '') or 'سيتم إضافة العنوان قريبًا'}</p>
+            <h3>☎️ الهاتف</h3>
+            <p>{settings.get('restaurant_phone', '') or 'سيتم إضافة رقم الهاتف قريبًا'}</p>
+            <h3>🕒 خدمة العملاء</h3>
+            <p>تواصل معنا للاستفسار عن الأصناف والطلبات.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    whatsapp = normalize_whatsapp(
+        settings.get("whatsapp_number", "")
+    )
+
+    if whatsapp:
+        st.link_button(
+            "تواصل عبر واتساب",
+            f"https://wa.me/{whatsapp}",
+            use_container_width=True,
+        )
+
+
+# =========================================================
+# لوحة الإدارة
+# =========================================================
+
+elif page == "لوحة الإدارة":
+    st.markdown(
+        '<div class="section-title">🔐 لوحة إدارة المطعم</div>',
+        unsafe_allow_html=True,
+    )
+
+    if not admin_logged_in():
+        st.info("يرجى تسجيل الدخول للوصول إلى لوحة الإدارة.")
+
+        with st.form("admin_login"):
+            password = st.text_input(
+                "كلمة مرور الإدارة",
+                type="password",
+            )
+            login = st.form_submit_button(
+                "تسجيل الدخول",
+                use_container_width=True,
+            )
+
+        if login:
+            configured_password = get_admin_password()
+
+            if not configured_password:
+                st.error(
+                    "لم يتم ضبط ADMIN_PASSWORD في إعدادات Secrets."
+                )
+            elif password == configured_password:
+                st.session_state["admin_logged_in"] = True
+                st.rerun()
+            else:
+                st.error("كلمة المرور غير صحيحة.")
+
+        st.stop()
+
+    if st.button("تسجيل الخروج"):
+        st.session_state["admin_logged_in"] = False
+        st.rerun()
+
+    tab_products, tab_orders, tab_settings = st.tabs(
+        ["إدارة الأصناف", "إدارة الطلبات", "إعدادات المطعم"]
+    )
+
+    # -----------------------------------------------------
+    # إدارة الأصناف
+    # -----------------------------------------------------
+
+    with tab_products:
+        st.subheader("إضافة صنف أو تعديل صنف موجود")
+
+        all_products = get_products(available_only=False)
+
+        product_options = {
+            "إضافة صنف جديد": None
+        }
+
+        for product in all_products:
+            product_options[
+                f"{product['id']} - {product['name']}"
+            ] = product["id"]
+
+        selected_product_label = st.selectbox(
+            "اختر الصنف",
+            list(product_options.keys()),
+        )
+
+        selected_product_id = product_options[
+            selected_product_label
+        ]
+
+        selected_product = (
+            get_product(selected_product_id)
+            if selected_product_id
+            else None
+        )
+
+        with st.form("product_form"):
+            name = st.text_input(
+                "اسم الصنف",
+                value=(
+                    selected_product["name"]
+                    if selected_product else ""
+                ),
+            )
+
+            category = st.text_input(
+                "القسم",
+                value=(
+                    selected_product["category"]
+                    if selected_product else "أسماك"
+                ),
+            )
+
+            description = st.text_area(
+                "وصف الصنف",
+                value=(
+                    selected_product["description"]
+                    if selected_product else ""
+                ),
+            )
+
+            price = st.number_input(
+                "السعر بالجنيه",
+                min_value=0.0,
+                step=5.0,
+                value=(
+                    float(selected_product["price"])
+                    if selected_product else 0.0
+                ),
+            )
+
+            image_url = st.text_input(
+                "رابط صورة الصنف",
+                value=(
+                    selected_product["image_url"]
+                    if selected_product else ""
+                ),
+                help="أدخل رابط صورة مباشر يبدأ بـ https://",
+            )
+
+            available = st.checkbox(
+                "الصنف متاح للبيع",
+                value=(
+                    bool(selected_product["available"])
+                    if selected_product else True
+                ),
+            )
+
+            save_button = st.form_submit_button(
+                "حفظ الصنف",
+                use_container_width=True,
+                type="primary",
+            )
+
+        if save_button:
+            if not name.strip():
+                st.error("اسم الصنف مطلوب.")
+            elif not category.strip():
+                st.error("القسم مطلوب.")
+            else:
+                try:
+                    save_product(
+                        selected_product_id,
+                        name.strip(),
+                        category.strip(),
+                        description.strip(),
+                        price,
+                        image_url.strip(),
+                        available,
+                    )
+                    st.success("تم حفظ الصنف بنجاح.")
+                    st.rerun()
+                except Exception as exc:
+                    st.error("تعذر حفظ الصنف.")
+                    st.code(str(exc))
+
+        st.divider()
+        st.subheader("الأصناف المسجلة")
+
+        if all_products:
+            product_df = pd.DataFrame(
+                [
+                    {
+                        "رقم الصنف": p["id"],
+                        "اسم الصنف": p["name"],
+                        "القسم": p["category"],
+                        "السعر": float(p["price"]),
+                        "متاح": "نعم" if p["available"] else "لا",
+                    }
+                    for p in all_products
+                ]
+            )
+            st.dataframe(
+                product_df,
+                use_container_width=True,
+                hide_index=True,
+            )
+
+            delete_options = {
+                f"{p['id']} - {p['name']}": p["id"]
+                for p in all_products
+            }
+
+            delete_label = st.selectbox(
+                "اختر صنفًا لحذفه",
+                list(delete_options.keys()),
+                key="delete_product_select",
+            )
+
+            if st.button("🗑️ حذف الصنف المحدد"):
+                delete_product(delete_options[delete_label])
+                st.success("تم حذف الصنف.")
+                st.rerun()
+        else:
+            st.info("لا توجد أصناف مسجلة.")
+
+    # -----------------------------------------------------
+    # إدارة الطلبات
+    # -----------------------------------------------------
+
+    with tab_orders:
+        st.subheader("متابعة الطلبات")
+
+        orders = get_orders(limit=500)
+
+        if not orders:
+            st.info("لا توجد طلبات مسجلة حتى الآن.")
+        else:
+            total_orders = len(orders)
+            new_orders = sum(
+                1 for order in orders
+                if order["status"] == "جديد"
+            )
+            completed_orders = sum(
+                1 for order in orders
+                if order["status"] == "مكتمل"
+            )
+            revenue = sum(
+                float(order["total"])
+                for order in orders
+                if order["status"] != "ملغي"
+            )
+
+            metric1, metric2, metric3, metric4 = st.columns(4)
+
+            metric1.metric("إجمالي الطلبات", total_orders)
+            metric2.metric("طلبات جديدة", new_orders)
+            metric3.metric("طلبات مكتملة", completed_orders)
+            metric4.metric("الإيرادات غير الملغاة", money(revenue))
+
+            order_options = {
+                (
+                    f"#{order['id']} - "
+                    f"{order['customer_name']} - "
+                    f"{order['status']}"
+                ): order["id"]
+                for order in orders
+            }
+
+            selected_order_label = st.selectbox(
+                "اختر طلبًا لعرض التفاصيل",
+                list(order_options.keys()),
+            )
+
+            selected_order_id = order_options[
+                selected_order_label
+            ]
+
+            selected_order = next(
+                order for order in orders
+                if order["id"] == selected_order_id
+            )
+
+            st.markdown(
+                f"""
+                <div class="info-card">
+                    <h3>الطلب رقم #{selected_order['id']}</h3>
+                    <p><b>العميل:</b> {selected_order['customer_name']}</p>
+                    <p><b>الهاتف:</b> {selected_order['phone']}</p>
+                    <p><b>العنوان:</b> {selected_order['address']}</p>
+                    <p><b>الفرع:</b> {selected_order['branch_name']}</p>
+                    <p><b>التاريخ:</b> {selected_order['created_at']}</p>
+                    <p><b>قيمة الأصناف:</b> {money(selected_order['subtotal'])}</p>
+                    <p><b>التوصيل:</b> {money(selected_order['delivery_fee'])}</p>
+                    <p><b>الإجمالي:</b> {money(selected_order['total'])}</p>
+                    <p><b>ملاحظات:</b> {selected_order['notes'] or 'لا يوجد'}</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            items = get_order_items(selected_order_id)
+
+            if items:
+                items_df = pd.DataFrame(
+                    [
+                        {
+                            "الصنف": item["product_name"],
+                            "سعر الوحدة": float(item["unit_price"]),
+                            "الكمية": item["quantity"],
+                            "الإجمالي": float(item["line_total"]),
+                        }
+                        for item in items
+                    ]
+                )
+
+                st.dataframe(
+                    items_df,
+                    use_container_width=True,
+                    hide_index=True,
+                )
+
+            statuses = [
+                "جديد",
+                "قيد التجهيز",
+                "خرج للتوصيل",
+                "مكتمل",
+                "ملغي",
+            ]
+
+            current_index = (
+                statuses.index(selected_order["status"])
+                if selected_order["status"] in statuses
+                else 0
+            )
+
+            new_status = st.selectbox(
+                "تحديث حالة الطلب",
+                statuses,
+                index=current_index,
+            )
+
+            if st.button("حفظ حالة الطلب"):
+                update_order_status(
+                    selected_order_id,
+                    new_status,
+                )
+                st.success("تم تحديث حالة الطلب.")
+                st.rerun()
+
+            export_df = pd.DataFrame(
+                [
+                    {
+                        "رقم الطلب": order["id"],
+                        "العميل": order["customer_name"],
+                        "الهاتف": order["phone"],
+                        "العنوان": order["address"],
+                        "الفرع": order["branch_name"],
+                        "الإجمالي": float(order["total"]),
+                        "الحالة": order["status"],
+                        "التاريخ": str(order["created_at"]),
+                    }
+                    for order in orders
+                ]
+            )
+
+            st.download_button(
+                "📥 تصدير الطلبات إلى Excel-compatible CSV",
+                data=export_df.to_csv(
+                    index=False,
+                    encoding="utf-8-sig",
+                ).encode("utf-8-sig"),
+                file_name="wadi_el_nile_orders.csv",
+                mime="text/csv",
+            )
+
+    # -----------------------------------------------------
+    # إعدادات المطعم
+    # -----------------------------------------------------
+
+    with tab_settings:
+        st.subheader("بيانات المطعم والتوصيل")
+
+        current_settings = get_settings()
+
+        with st.form("restaurant_settings"):
+            restaurant_name = st.text_input(
+                "اسم المطعم",
+                value=current_settings.get(
+                    "restaurant_name",
+                    "مطاعم أسماك وادي النيل",
+                ),
+            )
+
+            restaurant_subtitle = st.text_input(
+                "الوصف المختصر",
+                value=current_settings.get(
+                    "restaurant_subtitle",
+                    "",
+                ),
+            )
+
+            restaurant_phone = st.text_input(
+                "رقم هاتف المطعم",
+                value=current_settings.get(
+                    "restaurant_phone",
+                    "",
+                ),
+            )
+
+            whatsapp_number = st.text_input(
+                "رقم واتساب المطعم بصيغة دولية",
+                value=current_settings.get(
+                    "whatsapp_number",
+                    "",
+                ),
+                help="مثال مصري: 2010XXXXXXXX. اكتب الأرقام فقط.",
+            )
+
+            restaurant_address = st.text_area(
+                "عنوان المطعم",
+                value=current_settings.get(
+                    "restaurant_address",
+                    "",
+                ),
+            )
+
+            delivery_fee_value = st.number_input(
+                "رسوم التوصيل بالجنيه",
+                min_value=0.0,
+                step=5.0,
+                value=float(
+                    current_settings.get("delivery_fee", "25") or 0
+                ),
+            )
+
+            free_delivery_minimum_value = st.number_input(
+                "الحد الأدنى للطلب للحصول على توصيل مجاني (0 لتعطيله)",
+                min_value=0.0,
+                step=50.0,
+                value=float(
+                    current_settings.get(
+                        "free_delivery_minimum",
+                        "0",
+                    ) or 0
+                ),
+            )
+
+            currency = st.text_input(
+                "اسم العملة",
+                value=current_settings.get("currency", "جنيه"),
+            )
+
+            announcement = st.text_input(
+                "رسالة واجهة الموقع",
+                value=current_settings.get("announcement", ""),
+            )
+
+            settings_submit = st.form_submit_button(
+                "حفظ إعدادات المطعم",
+                use_container_width=True,
+                type="primary",
+            )
+
+        if settings_submit:
+            save_settings(
+                {
+                    "restaurant_name": restaurant_name.strip(),
+                    "restaurant_subtitle": restaurant_subtitle.strip(),
+                    "restaurant_phone": restaurant_phone.strip(),
+                    "whatsapp_number": whatsapp_number.strip(),
+                    "restaurant_address": restaurant_address.strip(),
+                    "delivery_fee": delivery_fee_value,
+                    "free_delivery_minimum": free_delivery_minimum_value,
+                    "currency": currency.strip() or "جنيه",
+                    "announcement": announcement.strip(),
+                }
+            )
+
+            st.success("تم حفظ إعدادات المطعم.")
+            st.rerun()
+
+
+# =========================================================
+# تذييل الموقع
+# =========================================================
+
 st.divider()
-st.markdown("### 📍 فروعنا الرئيسية والخط الساخن")
-f1, f2, f3 = st.columns(3)
-with f1:
-    st.markdown("**فرع المهندسين**")
-    st.write("82 شارع وادي النيل، الجيزة.")
-with f2:
-    st.markdown("**فرع التجمع الخامس**")
-    st.write("الحي الثالث، بجوار مول عنابة.")
-with f3:
-    st.markdown("**فرع 6 أكتوبر**")
-    st.write("محور 26 يوليو، بجوار شيل أوت.")
+
+st.markdown(
+    """
+    <div style="
+        text-align:center;
+        color:#64748b;
+        padding:12px;
+        font-size:13px;
+    ">
+        🐟 مطاعم أسماك وادي النيل
+        <br>
+        طعم البحر الأصيل، وجودة تستحقها
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
