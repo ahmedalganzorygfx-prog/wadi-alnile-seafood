@@ -19,13 +19,13 @@
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <!-- الشعار النصي البارز في الهيدر -->
-                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-cyan-400 shadow">
+                <!-- شق شعار الهيدر -->
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center border-2 border-cyan-300 shadow">
                     <span class="text-xl">🐟</span>
-                    <div>
-                        <h1 class="text-sm font-black text-cyan-400 leading-tight">أسماك وادي النيل</h1>
-                        <span class="text-[10px] text-slate-300">للمأكولات البحرية</span>
-                    </div>
+                </div>
+                <div>
+                    <h1 class="text-sm font-black text-cyan-400 leading-tight">أسماك وادي النيل</h1>
+                    <span class="text-[10px] text-slate-300">للمأكولات البحرية</span>
                 </div>
             </div>
             
@@ -40,11 +40,19 @@
     <!-- Main Container -->
     <main class="container mx-auto px-4 py-6 max-w-6xl flex-grow">
         
-        <!-- شعار المطعم البارز في منتصف الصفحة (Hero Section Logo) -->
-        <div class="flex flex-col items-center justify-center mb-8 bg-gradient-to-b from-blue-900 via-blue-800 to-cyan-900 text-white p-8 rounded-3xl shadow-lg text-center border border-cyan-500/30">
-            <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center text-4xl shadow-2xl mb-4 border-4 border-cyan-400">
-                🐟
+        <!-- بانر الشعار الاحترافي في منتصف الصفحة (مطابق لهوية وادي النيل) -->
+        <div class="flex flex-col items-center justify-center mb-8 bg-gradient-to-b from-blue-900 via-blue-800 to-cyan-900 text-white p-8 rounded-3xl shadow-xl text-center border border-cyan-500/30">
+            <!-- دائرة الشعار البحرية المتطورة -->
+            <div class="relative w-28 h-28 rounded-full bg-gradient-to-tr from-cyan-400 to-blue-600 p-1 shadow-2xl mb-4 flex items-center justify-center border-4 border-cyan-300">
+                <div class="w-full h-full bg-blue-950 rounded-full flex flex-col items-center justify-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-blue-900 opacity-50 flex items-end justify-around pb-1">
+                        <span class="text-xs text-cyan-300">﹏﹏﹏</span>
+                    </div>
+                    <span class="text-4xl z-10">🐬</span>
+                    <span class="text-[10px] font-black text-amber-300 tracking-wider z-10 mt-0.5">W N</span>
+                </div>
             </div>
+            
             <h2 class="text-2xl sm:text-3xl font-black text-cyan-300 mb-1">سلسلة مطاعم أسماك وادي النيل</h2>
             <p class="text-xs sm:text-sm text-slate-200">أطزج الأسماك والمأكولات البحرية الطازجة يومياً من البحر لمائدتك</p>
         </div>
