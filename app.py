@@ -157,7 +157,8 @@ with products_col:
             target_col = grid_cols[idx % 2]
             with target_col:
                 with st.container(border=True):
-                    st.image(product["img"], use_container_width=True, height=140)
+                    # تم تصحيح طريقة عرض الصورة لتعمل بدون أخطاء
+                    st.image(product["img"])
                     st.markdown(f"**{product['name']}**")
                     st.markdown(f"<span class='price-tag'>{product['price']:.2f} ج.م</span>", unsafe_allow_html=True)
                     
