@@ -114,7 +114,6 @@ def render_menu():
                 prod = filtered_products[idx]
                 cat_name = prod["category"]
                 
-                # معالجة ذكية للصور المرفوعة محلياً أو عبر الإنترنت
                 image_to_show = None
                 if prod["image"] and prod["image"].strip() != "":
                     if prod["image"].startswith("http"):
@@ -128,7 +127,15 @@ def render_menu():
                 
                 with cols_row[j]:
                     with st.container():
-                        st.image(image_to_show, use_column_width=True)
+                        # حاوية صورة ثابتة الارتفاع (200 بكسل) لتتساوى جميع البطاقات تماماً
+                        st.markdown(
+                            f"""
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 16px 16px 0 0; background-color: #0b2538;">
+                                <img src="{image_to_show}" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
                         
                         st.markdown(
                             f"""
