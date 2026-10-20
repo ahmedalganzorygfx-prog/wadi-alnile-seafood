@@ -2,451 +2,103 @@ import streamlit as st
 
 
 def section_title(title, subtitle=""):
-
     st.markdown(
         f"""
-<div style="
-    text-align:center;
-    margin:65px 0 30px;
-">
-
-    <div style="
-        font-size:34px;
-        font-weight:900;
-        color:#07566a;
-    ">
-        {title}
-    </div>
-
-    <div style="
-        margin-top:8px;
-        color:#68777d;
-        font-size:15px;
-    ">
-        {subtitle}
-    </div>
-
-</div>
-""",
+        <div style="text-align:center; margin:65px 0 30px; direction:rtl;">
+            <div style="font-size:34px; font-weight:900; color:#07566a;">{title}</div>
+            <div style="margin-top:8px; color:#68777d; font-size:15px;">{subtitle}</div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
 
 def render_offers():
-
-    st.markdown(
-        '<div id="offers"></div>',
-        unsafe_allow_html=True
-    )
-
-
-    section_title(
-        "🎁 عروض وادي النيل",
-        "عروض مميزة تناسب العائلة والأصدقاء"
-    )
-
-
-    offers = [
-
-        (
-            "عرض العائلة",
-            "وجبة بحرية متكاملة للعائلة",
-            "خصم خاص"
-        ),
-
-        (
-            "عرض نهاية الأسبوع",
-            "اختيارات مميزة بأسعار خاصة",
-            "لفترة محدودة"
-        ),
-
-        (
-            "عرض الجمبري",
-            "استمتع بأطباق الجمبري المميزة",
-            "اطلب الآن"
-        ),
-
-    ]
-
-
-    cols = st.columns(3)
-
-
-    for col, offer in zip(
-        cols,
-        offers
-    ):
-
-        title, description, label = offer
-
-
-        with col:
-
-            st.markdown(
-                f"""
-<div style="
-    padding:30px;
-
-    min-height:190px;
-
-    border-radius:25px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #07566a,
-            #0b8296
-        );
-
-    color:white;
-
-    box-shadow:
-        0 15px 35px
-        rgba(7,86,106,.18);
-
-    margin-bottom:20px;
-">
-
-    <div style="
-        font-size:13px;
-        opacity:.85;
-    ">
-        🎁 عرض خاص
-    </div>
-
-    <div style="
-        font-size:25px;
-        font-weight:900;
-        margin-top:10px;
-    ">
-        {title}
-    </div>
-
-    <div style="
-        margin-top:8px;
-        opacity:.9;
-    ">
-        {description}
-    </div>
-
-    <div style="
-        margin-top:20px;
-        font-weight:900;
-    ">
-        {label}
-    </div>
-
-</div>
-""",
-                unsafe_allow_html=True,
-            )
+    section_title("🎁 عروض وادي النيل", "أقوى العروض والوجبات التوفيرية")
+    cols = st.columns(2)
+    with cols[0]:
+        st.markdown(
+            """
+            <div style="background:linear-gradient(135deg, #07566a, #032027); color:white; padding:30px; border-radius:24px; direction:rtl;">
+                <h3>🌊 عرض العائلة البحري</h3>
+                <p style="color:#b8ced2; margin:15px 0;">سمك دنيس + كيلو جمبري مشوي + أرز صيادية + شوربة سي فود + سلطات</p>
+                <div style="font-size:22px; font-weight:bold; color:#ffb703;">فقط 999 جنيه بدلًا من 1200 جنيه</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with cols[1]:
+        st.markdown(
+            """
+            <div style="background:linear-gradient(135deg, #032027, #07566a); color:white; padding:30px; border-radius:24px; direction:rtl;">
+                <h3>🦐 وجبة الساحل الفاخرة</h3>
+                <p style="color:#b8ced2; margin:15px 0;">نصف كيلو جمبري مقرمش + سمك قاروص + أرز وكاتشب وسلطة طحينة</p>
+                <div style="font-size:22px; font-weight:bold; color:#ffb703;">فقط 599 جنيه بدلًا من 700 جنيه</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_why_us():
-
-    st.markdown(
-        '<div id="why-us"></div>',
-        unsafe_allow_html=True
-    )
-
-
-    section_title(
-        "لماذا أسماك وادي النيل؟",
-        "لأن التجربة عندنا تبدأ من جودة المكونات"
-    )
-
-
-    items = [
-
-        (
-            "🐟",
-            "جودة الأسماك",
-            "نختار أفضل المكونات بعناية."
-        ),
-
-        (
-            "👨‍🍳",
-            "خبرة الطهي",
-            "نكهات مصرية أصيلة بلمسة عصرية."
-        ),
-
-        (
-            "🚚",
-            "خدمة مميزة",
-            "نهتم بتجربة العميل من البداية للنهاية."
-        ),
-
-        (
-            "❤️",
-            "ثقة عملائنا",
-            "رضا العملاء هو هدفنا الأول."
-        ),
-
+    section_title("⭐ لماذا أسماك وادي النيل؟", "جودة وثقة تمتد لسنوات")
+    cols = st.columns(3)
+    features = [
+        ("🐟 طازج يومياً", "أسماك بحرية طازجة تصلنا يومياً من أجود الموانئ المصرية."),
+        ("👨‍🍳 شيفات محترفون", "نخبة من أفضل الطهاة المتخصصين في إعداد المأكولات البحرية."),
+        ("🛡️ معايير نظافة عالية", "تطبيق صارم لأعلى معايير التعقيم والجودة في كافة مراحل التحضير."),
     ]
-
-
-    cols = st.columns(4)
-
-
-    for col, item in zip(
-        cols,
-        items
-    ):
-
-        icon, title, text = item
-
-
+    for col, (title, desc) in zip(cols, features):
         with col:
-
             st.markdown(
                 f"""
-<div style="
-    background:#ffffff;
-
-    padding:25px;
-
-    border-radius:22px;
-
-    text-align:center;
-
-    min-height:190px;
-
-    border:
-        1px solid #edf0f1;
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.04);
-">
-
-    <div style="
-        font-size:38px;
-    ">
-        {icon}
-    </div>
-
-    <div style="
-        color:#07566a;
-        font-size:19px;
-        font-weight:900;
-        margin-top:8px;
-    ">
-        {title}
-    </div>
-
-    <div style="
-        color:#75838a;
-        margin-top:8px;
-        font-size:14px;
-    ">
-        {text}
-    </div>
-
-</div>
-""",
+                <div style="background:white; padding:25px; border-radius:20px; border:1px solid #eee; text-align:center; direction:rtl; box-shadow:0 5px 15px rgba(0,0,0,0.03);">
+                    <div style="font-size:22px; font-weight:bold; color:#07566a; margin-bottom:10px;">{title}</div>
+                    <div style="color:#68777d; font-size:14px; line-height:1.6;">{desc}</div>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
 
 
 def render_branches():
-
-    st.markdown(
-        '<div id="branches"></div>',
-        unsafe_allow_html=True
-    )
-
-
-    section_title(
-        "📍 فروعنا",
-        "نحن أقرب إليك"
-    )
-
-
-    branches = [
-
-        (
-            "فرع وادي النيل",
-            "القاهرة",
-            "متاح للطلب والتوصيل"
-        ),
-
-        (
-            "فرع الجيزة",
-            "الجيزة",
-            "متاح للطلب والاستلام"
-        ),
-
-        (
-            "فرع أكتوبر",
-            "مدينة 6 أكتوبر",
-            "متاح للطلب والتوصيل"
-        ),
-
-    ]
-
-
+    section_title("📍 فروعنا المنتشرة", "زورنا في أقرب فرع ليك")
     cols = st.columns(3)
-
-
-    for col, branch in zip(
-        cols,
-        branches
-    ):
-
-        name, location, status = branch
-
-
+    branches = [
+        ("فرع الدقي", "شارع مصدق، الجيزة", "01000000001"),
+        ("فرع الهرم", "استوديو الأهرام، الجيزة", "01000000002"),
+        ("فرع مدينة نصر", "شارع مكرم عبيد، القاهرة", "01000000003"),
+    ]
+    for col, (name, address, phone) in zip(cols, branches):
         with col:
-
             st.markdown(
                 f"""
-<div style="
-    background:white;
-
-    border-radius:22px;
-
-    padding:25px;
-
-    border:
-        1px solid #edf0f1;
-
-    margin-bottom:20px;
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.04);
-">
-
-    <div style="
-        font-size:35px;
-    ">
-        🏪
-    </div>
-
-    <div style="
-        color:#07566a;
-        font-size:20px;
-        font-weight:900;
-        margin-top:8px;
-    ">
-        {name}
-    </div>
-
-    <div style="
-        margin-top:8px;
-        color:#66757c;
-    ">
-        📍 {location}
-    </div>
-
-    <div style="
-        margin-top:10px;
-        color:#16845a;
-        font-size:13px;
-        font-weight:700;
-    ">
-        ● {status}
-    </div>
-
-</div>
-""",
+                <div style="background:white; padding:25px; border-radius:20px; border:1px solid #eee; text-align:center; direction:rtl; box-shadow:0 5px 15px rgba(0,0,0,0.03);">
+                    <div style="font-size:20px; font-weight:bold; color:#07566a; margin-bottom:8px;">{name}</div>
+                    <div style="color:#68777d; font-size:14px; margin-bottom:10px;">{address}</div>
+                    <div style="color:#10b981; font-weight:bold; font-size:14px;">📞 {phone}</div>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
 
 
 def render_reviews():
-
-    st.markdown(
-        '<div id="reviews"></div>',
-        unsafe_allow_html=True
-    )
-
-
-    section_title(
-        "⭐ آراء عملائنا",
-        "ثقتكم هي نجاحنا"
-    )
-
-
+    section_title("💬 آراء عملائنا الكرام", "نعتز بثقتكم الغالية")
+    cols = st.columns(2)
     reviews = [
-
-        (
-            "محمد أحمد",
-            "⭐⭐⭐⭐⭐",
-            "الأكل ممتاز والطعم رائع جدًا."
-        ),
-
-        (
-            "سارة محمود",
-            "⭐⭐⭐⭐⭐",
-            "تجربة جميلة وخدمة محترمة."
-        ),
-
-        (
-            "أحمد علي",
-            "⭐⭐⭐⭐⭐",
-            "الجمبري ممتاز وأنصح به جدًا."
-        ),
-
+        ("أحمد م.", "أفضل مطعم أسماك جربته في الجيزة، الأكل طازج جداً والتوصيل سريع.", "⭐⭐⭐⭐⭐"),
+        ("سارة ك.", "الجمبري المشوي عندهم حكاية! تتبيلة ممتازة ونظافة عالية.", "⭐⭐⭐⭐⭐"),
     ]
-
-
-    cols = st.columns(3)
-
-
-    for col, review in zip(
-        cols,
-        reviews
-    ):
-
-        name, stars, text = review
-
-
+    for col, (name, comment, stars) in zip(cols, reviews):
         with col:
-
             st.markdown(
                 f"""
-<div style="
-    background:white;
-
-    padding:25px;
-
-    border-radius:22px;
-
-    border:
-        1px solid #edf0f1;
-
-    margin-bottom:25px;
-
-    box-shadow:
-        0 8px 25px
-        rgba(0,0,0,.04);
-">
-
-    <div style="
-        color:#b47b27;
-        font-size:18px;
-    ">
-        {stars}
-    </div>
-
-    <div style="
-        color:#536269;
-        line-height:1.9;
-        margin-top:12px;
-    ">
-        "{text}"
-    </div>
-
-    <div style="
-        color:#07566a;
-        font-weight:900;
-        margin-top:15px;
-    ">
-        {name}
-    </div>
-
-</div>
-""",
+                <div style="background:white; padding:25px; border-radius:20px; border:1px solid #eee; direction:rtl; box-shadow:0 5px 15px rgba(0,0,0,0.03);">
+                    <div style="font-size:16px; font-weight:bold; color:#07566a; margin-bottom:5px;">{name}</div>
+                    <div style="color:#ffb703; margin-bottom:10px;">{stars}</div>
+                    <div style="color:#68777d; font-size:14px;">{comment}</div>
+                </div>
+                """,
                 unsafe_allow_html=True,
             )
