@@ -49,7 +49,6 @@ def render_menu():
         unsafe_allow_html=True,
     )
 
-    # شريط البحث والتصنيفات
     col_search, col_cat = st.columns([1, 2])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
@@ -59,7 +58,6 @@ def render_menu():
 
     products = load_products()
 
-    # تصفية المنتجات
     filtered_products = []
     for p in products:
         match_cat = (selected_category == "الكل") or (p["category"] == selected_category)
@@ -71,7 +69,6 @@ def render_menu():
         st.warning("⚠️ عذراً، لا توجد وجبات تطابق بحثك حالياً.")
         return
 
-    # عرض المنتجات في شبكة (Grid)
     cols_per_row = 3
     for i in range(0, len(filtered_products), cols_per_row):
         cols = st.columns(cols_per_row)
