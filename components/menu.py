@@ -50,17 +50,24 @@ def load_products():
 def render_menu():
     st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
+    # تنسيق الألوان المستوحاة من الصورة المرفقة (خلفية داكنة، بطاقات زرقاء دقيقة، وأزرار سماوية)
     st.markdown(
         """
         <style>
+        /* تخصيص حقل البحث ليتطابق مع الثيم الداكن والفخم */
         div[data-baseweb="input"], input {
             direction: rtl !important;
             text-align: right !important;
+            background-color: #0b2538 !important;
+            color: #ffffff !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
         }
         .stTextInput > label {
             direction: rtl !important;
             text-align: right !important;
             display: block;
+            color: #94a3b8 !important;
         }
         </style>
         """,
@@ -70,13 +77,14 @@ def render_menu():
     if "selected_category" not in st.session_state:
         st.session_state.selected_category = "الكل"
 
-    # حقل البحث في منتصف الصفحة تماماً باستخدام أعمدة متوازنة
+    # حقل البحث في منتصف الصفحة تماماً
     col_left, col_search, col_right = st.columns([1, 2, 1])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
+    # أزرار التصنيفات الأفقية
     cols = st.columns(len(CATEGORIES))
     for idx, category in enumerate(CATEGORIES):
         with cols[idx]:
@@ -115,34 +123,35 @@ def render_menu():
                     with st.container():
                         st.image(img_url, use_column_width=True)
                         
+                        # بطاقة الوجبة بتصميم مستوحى من الصورة المرفقة (خلفية زرقاء داكنة وحواف دائرية ناعمة)
                         st.markdown(
                             f"""
                             <div style="
-                                background: #ffffff;
-                                border: 1px solid rgba(7, 86, 106, 0.12);
+                                background: #0b2538;
+                                border: 1px solid rgba(255, 255, 255, 0.08);
                                 border-radius: 0 0 16px 16px;
                                 padding: 18px;
                                 margin-bottom: 15px;
-                                box-shadow: 0 8px 20px rgba(7, 86, 106, 0.05);
+                                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
                                 text-align: right;
                                 direction: rtl;
                             ">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <div style="font-size: 19px; font-weight: 900; color: #07566a;">
+                                    <div style="font-size: 19px; font-weight: 900; color: #ffffff;">
                                         {prod['name']}
                                     </div>
-                                    <div style="font-size: 11px; background: #eef4f6; color: #07566a; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
+                                    <div style="font-size: 11px; background: rgba(13, 148, 136, 0.2); color: #2dd4bf; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
                                         {cat_name}
                                     </div>
                                 </div>
-                                <div style="font-size: 13px; color: #68777d; margin-bottom: 12px; min-height: 38px; line-height: 1.5;">
+                                <div style="font-size: 13px; color: #94a3b8; margin-bottom: 12px; min-height: 38px; line-height: 1.5;">
                                     {prod['description'] or 'وجبة بحرية طازجة ومميزة مُجهزة بأعلى معايير الجودة'}
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #edf2f4; padding-top: 10px;">
-                                    <div style="font-size: 17px; font-weight: 900; color: #0d9488;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px;">
+                                    <div style="font-size: 17px; font-weight: 900; color: #38bdf8;">
                                         {prod['price']} جنيه
                                     </div>
-                                    <div style="font-size: 11px; background: #e6f4f1; color: #0d9488; padding: 2px 8px; border-radius: 8px; font-weight: bold;">
+                                    <div style="font-size: 11px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 8px; border-radius: 8px; font-weight: bold;">
                                         ⭐ طازج يومياً
                                     </div>
                                 </div>
