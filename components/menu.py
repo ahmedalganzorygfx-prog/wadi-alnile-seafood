@@ -1,30 +1,175 @@
 import streamlit as st
+from database.database import get_connection
+
+CATEGORIES = [
+    "الحلويات",
+    "المشروبات",
+    "الشوربة",
+    "السلطات",
+    "الأرز",
+    "السي فود",
+    "الجمبري",
+    "الأسماك",
+    "الكل",
+]
+
+CATEGORY_IMAGES = {
+    "الأسماك": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
+    "الجمبري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
+    "السي فود": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80",
+    "الأرز": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
+    "السلطات": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    "الشوربة": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
+    "المشروبات": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
+    "الحلويات": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80",
+}
+
+
+def load_products():
+    connection = get_connection()
+    products = connection.execute(
+        """
+        SELECT
+            products.id,
+            products.name,
+            products.description,
+            products.price,
+            products.image,
+            products.available,
+            categories.name AS category
+        FROM products
+        LEFT JOIN categories
+            ON products.category_id = categories.id
+        WHERE products.available = 1
+        ORDER BY products.id DESC
+        """
+    ).fetchall()
+    return products
+
+
 def render_menu():
-# عرض عنوان المطعم بخط كبير في منتصف الصفحة مع إمكانية التحكم في الألوان والحجم
-st.markdown(
-    """
-    <div style="
-        text-align: center;
-        margin: 40px 0 20px 0;
-        direction: rtl;
-    ">
-        <h1 style="
-            font-size: 52px; /* يمكنك زيادة أو تقليل حجم الخط من هنا */
-            font-weight: 900;
-            color: #07566a; /* لون العنوان الرئيسي (أزرق داكن فاخر) */
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.08);
-            margin-bottom: 10px;
-        ">
-            مطاعم أسماك وادي النيل 🐟
-        </h1>
-        <p style="
-            font-size: 20px; /* حجم الخط النص الفرعي */
-            color: #ffb703; /* لون ترحيبي ذهبي دافئ متناسق */
-            font-weight: 700;
-        ">
-            طعم البحر .. بطعم مصري أصيل
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
+
+    # تنسيق CSS لضمان محاذاة حقل البحث بالكامل من اليمين لليسار
+    st.markdown(
+        """
+        <style>
+        div[data-baseweb="input"], input {
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        .stTextInput > label {
+            direction: rtl !important;
+            text-align: right !important;
+            display: block;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    if "selected_category" not in st.session_state:
+        st.session_state.selected_category = "الكل"
+
+    # حقل البحث من اليمين
+    col_empty, col_search = st.columns([1, 2])
+    with col_search:
+        search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # عرض التصنيفات كأزرار أفقية (مرتبة من اليمين لليسار وزر الكل في أقصى اليمين)
+    cols = st.columns(len(CATEGORIES))
+    for idx, category in enumerate(CATEGORIES):
+        with cols[idx]:
+            is_active = st.session_state.selected_category == category
+            btn_type = "primary" if is_active else "secondary"
+            if st.button(category, key=f"cat_btn_{idx}", use_container_width=True, type=btn_type):
+                st.session_state.selected_category = category
+                st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    products = load_products()
+    filtered_products = []
+    for p in products:
+        match_cat = (st.session_state.selected_category == "الكل") or (p["category"] == st.session_state.selected_category)
+        match_search = (not search_query) or (search_query.lower() in p["name"].lower())
+        if match_cat and match_search:
+            filtered_products.append(p)
+
+    if not filtered_products:
+        st.warning("⚠️ عذراً، لا توجد وجبات تطابق اختيارك حالياً.")
+        return
+
+    cols_per_row = 3
+    for i in range(0, len(filtered_products), cols_per_row):
+        cols_row = st.columns(cols_per_row)
+        for j in range(cols_per_row):
+            idx = i + j
+            if idx < len(filtered_products):
+                prod = filtered_products[idx]
+                cat_name = prod["category"]
+                
+                img_url = prod["image"] if prod["image"] else CATEGORY_IMAGES.get(cat_name, "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80")
+                
+                with cols_row[j]:
+                    with st.container():
+                        st.image(img_url, use_column_width=True)
+                        
+                        st.markdown(
+                            f"""
+                            <div style="
+                                background: #ffffff;
+                                border: 1px solid rgba(7, 86, 106, 0.12);
+                                border-radius: 0 0 16px 16px;
+                                padding: 18px;
+                                margin-bottom: 15px;
+                                box-shadow: 0 8px 20px rgba(7, 86, 106, 0.05);
+                                text-align: right;
+                                direction: rtl;
+                            ">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <div style="font-size: 19px; font-weight: 900; color: #07566a;">
+                                        {prod['name']}
+                                    </div>
+                                    <div style="font-size: 11px; background: #eef4f6; color: #07566a; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
+                                        {cat_name}
+                                    </div>
+                                </div>
+                                <div style="font-size: 13px; color: #68777d; margin-bottom: 12px; min-height: 38px; line-height: 1.5;">
+                                    {prod['description'] or 'وجبة بحرية طازجة ومميزة مُجهزة بأعلى معايير الجودة'}
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #edf2f4; padding-top: 10px;">
+                                    <div style="font-size: 17px; font-weight: 900; color: #0d9488;">
+                                        {prod['price']} جنيه
+                                    </div>
+                                    <div style="font-size: 11px; background: #e6f4f1; color: #0d9488; padding: 2px 8px; border-radius: 8px; font-weight: bold;">
+                                        ⭐ طازج يومياً
+                                    </div>
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+                        
+                        if st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}", use_container_width=True):
+                            cart = st.session_state.get("cart", [])
+                            found = False
+                            for item in cart:
+                                if item["id"] == prod["id"]:
+                                    item["quantity"] += 1
+                                    found = True
+                                    break
+                            if not found:
+                                cart.append(
+                                    {
+                                        "id": prod["id"],
+                                        "name": prod["name"],
+                                        "price": prod["price"],
+                                        "quantity": 1,
+                                    }
+                                )
+                            st.session_state.cart = cart
+                            st.success(f"تمت إضافة '{prod['name']}' إلى السلة بنجاح!")
+                            st.rerun()
