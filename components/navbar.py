@@ -12,13 +12,13 @@ def render_navbar():
         <style>
         .navbar {{
             width: 100%;
-            background: rgba(255,255,255,.95);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(0,0,0,.06);
+            border-bottom: 1px solid rgba(7, 86, 106, 0.1);
             border-radius: 0 0 25px 25px;
-            padding: 14px 22px;
+            padding: 12px 25px;
             margin-bottom: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(7, 86, 106, 0.08);
             position: sticky;
             top: 0;
             z-index: 999;
@@ -34,14 +34,21 @@ def render_navbar():
         .brand {{
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 21px;
+            gap: 14px;
+            font-size: 22px;
             font-weight: 900;
             color: #07566a;
             text-decoration: none;
         }}
+        .brand img {{
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffb703;
+        }}
         .hotline-badge {{
-            background: #07566a;
+            background: linear-gradient(135deg, #07566a, #032027);
             color: white;
             padding: 8px 18px;
             border-radius: 50px;
@@ -49,18 +56,28 @@ def render_navbar():
             font-size: 14px;
             box-shadow: 0 4px 15px rgba(7,86,106,0.3);
         }}
+        .cart-badge {{
+            background: #eef4f6;
+            color: #07566a;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 14px;
+            border: 1px solid rgba(7,86,106,0.15);
+        }}
         </style>
 
         <div class="navbar">
             <div class="nav-inner">
                 <a href="#home" class="brand">
-                    🐟 أسماك وادي النيل
+                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80" alt="logo">
+                    أسماك وادي النيل
                 </a>
                 <div style="display: flex; gap: 15px; align-items: center;">
                     <div class="hotline-badge">
                         ☎️ الخط الساخن: 19974
                     </div>
-                    <div style="background:#eef4f6; color:#07566a; padding:8px 15px; border-radius:50px; font-weight:bold; font-size:14px;">
+                    <div class="cart-badge">
                         🛒 السلة ({cart_count})
                     </div>
                 </div>
