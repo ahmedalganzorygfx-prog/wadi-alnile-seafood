@@ -5,11 +5,11 @@ from components.navbar import render_navbar
 from components.menu import render_menu
 from components.cart import render_cart
 from components.checkout import render_checkout
-from components.admin import render_admin  # استدعاء لوحة التحكم الإدارية
+from components.admin import render_admin
+from components.branches import render_branches
 from components.cards import (
     render_offers,
     render_why_us,
-    render_branches,
     render_reviews,
 )
 from components.footer import render_footer
@@ -100,13 +100,15 @@ render_cart()
 # شاشة إتمام الطلب
 render_checkout()
 
-# لوحة التحكم الإدارية (لإضافة الوجبات ورفع الصور الحقيقية)
+# لوحة التحكم الإدارية
 render_admin()
+
+# فروع المطعم وأرقام التواصل
+render_branches()
 
 # الأقسام الترويجية والإضافية
 render_offers()
 render_why_us()
-render_branches()
 render_reviews()
 
 # تذييل الصفحة (Footer)
