@@ -144,7 +144,7 @@ def init_database():
         )
     connection.commit()
 
-    # تعبئة منتجات تجريبية إذا كانت الجدول فارغًا
+    # تعبئة منتجات تجريبية إذا كان الجدول فارغاً
     cursor.execute("SELECT COUNT(*) FROM products")
     if cursor.fetchone()[0] == 0:
         seed_products()
