@@ -5,6 +5,7 @@ from components.navbar import render_navbar
 from components.menu import render_menu
 from components.cart import render_cart
 from components.checkout import render_checkout
+from components.admin import render_admin  # استدعاء لوحة التحكم الإدارية
 from components.cards import (
     render_offers,
     render_why_us,
@@ -24,7 +25,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# إخفاء القائمة الجانبية الافتراضية وشريط Streamlit العلوي
 st.markdown(
     """
     <style>
@@ -52,7 +52,7 @@ init_database()
 
 
 # =========================================================
-# عرض مكونات الموقع وترتيبها في المنتصف
+# عرض مكونات الموقع وترتيبها في منتصف الصفحة
 # =========================================================
 
 render_navbar()
@@ -91,18 +91,23 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# قائمة الطعام (المنيو)
 render_menu()
 
+# سلة المشتريات
 render_cart()
 
+# شاشة إتمام الطلب
 render_checkout()
 
+# لوحة التحكم الإدارية (لإضافة الوجبات ورفع الصور الحقيقية)
+render_admin()
+
+# الأقسام الترويجية والإضافية
 render_offers()
-
 render_why_us()
-
 render_branches()
-
 render_reviews()
 
+# تذييل الصفحة (Footer)
 render_footer()
