@@ -1,7 +1,5 @@
 import streamlit as st
-
 from database.database import get_connection
-
 
 CATEGORIES = [
     "الكل",
@@ -17,9 +15,7 @@ CATEGORIES = [
 
 
 def load_products():
-
     connection = get_connection()
-
     products = connection.execute(
         """
         SELECT
@@ -30,256 +26,103 @@ def load_products():
             products.image,
             products.available,
             categories.name AS category
-
         FROM products
-
         LEFT JOIN categories
             ON products.category_id = categories.id
-
         WHERE products.available = 1
-
         ORDER BY products.id DESC
         """
     ).fetchall()
-
-    connection.close()
-
     return products
 
 
-def add_to_cart(product):
-
-    if "cart" not in st.session_state:
-
-        st.session_state.cart = []
-
-
-    product_id = product[0]
-
-
-    for item in st.session_state.cart:
-
-        if item["id"] == product_id:
-
-            item["quantity"] += 1
-
-            st.toast(
-                f"تم زيادة كمية {product[1]} 🛒"
-            )
-
-            return
-
-
-    st.session_state.cart.append(
-        {
-            "id": product[0],
-            "name": product[1],
-            "description": product[2],
-            "price": float(product[3]),
-            "image": product[4],
-            "quantity": 1,
-        }
-    )
-
-
-    st.toast(
-        f"تمت إضافة {product[1]} إلى السلة 🛒"
-    )
-
-
 def render_menu():
+    st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
     st.markdown(
         """
-<div id="menu"></div>
-
-<div style="
-    text-align:center;
-    margin:55px 0 30px;
-">
-
-    <div style="
-        color:#07566a;
-        font-size:40px;
-        font-weight:900;
-    ">
-        🍽️ المنيو
-    </div>
-
-    <div style="
-        color:#718087;
-        font-size:16px;
-        margin-top:8px;
-    ">
-        اكتشف تشكيلتنا المميزة من المأكولات البحرية
-    </div>
-
-</div>
-""",
+        <div style="text-align:center; margin:50px 0 25px; direction:rtl;">
+            <h2 style="color:#07566a; font-size:36px; font-weight:900;">🍽️ منيو أسماك وادي النيل</h2>
+            <p style="color:#68777d; font-size:16px;">اختر أكلتك البحرية المفضلة وأضفها للسلة بضغطة زر</p>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 
+    # شريط البحث والتصنيفات
+    col_search, col_cat = st.columns([1, 2])
+    with col_search:
+        search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
+
+    with col_cat:
+        selected_category = st.selectbox("📂 تصفية حسب التصنيف", CATEGORIES)
 
     products = load_products()
 
-
-    if not products:
-
-        st.info(
-            "لا توجد منتجات في المنيو حاليًا."
-        )
-
-        return
-
-
-    search = st.text_input(
-        "🔎 ابحث عن وجبتك",
-        placeholder="مثال: جمبري، دنيس، أرز..."
-    )
-
-
-    selected_category = st.radio(
-        "التصنيف",
-        CATEGORIES,
-        horizontal=True,
-    )
-
-
-    filtered_products = products
-
-
-    if selected_category != "الكل":
-
-        filtered_products = [
-
-            product
-
-            for product in filtered_products
-
-            if product[6] == selected_category
-        ]
-
-
-    if search.strip():
-
-        search_text = search.strip().lower()
-
-
-        filtered_products = [
-
-            product
-
-            for product in filtered_products
-
-            if
-            search_text in product[1].lower()
-
-            or
-
-            search_text in
-            (product[2] or "").lower()
-        ]
-
+    # تصفية المنتجات
+    filtered_products = []
+    for p in products:
+        match_cat = (selected_category == "الكل") or (p["category"] == selected_category)
+        match_search = (not search_query) or (search_query.lower() in p["name"].lower())
+        if match_cat and match_search:
+            filtered_products.append(p)
 
     if not filtered_products:
-
-        st.warning(
-            "لم نجد منتجات مطابقة لبحثك."
-        )
-
+        st.warning("⚠️ عذراً، لا توجد وجبات تطابق بحثك حالياً.")
         return
 
-
-    columns = st.columns(4)
-
-
-    for index, product in enumerate(
-        filtered_products
-    ):
-
-        with columns[index % 4]:
-
-            if product[4]:
-
-                st.image(
-                    product[4],
-                    use_container_width=True
-                )
-
-            else:
-
-                st.markdown(
-                    """
-<div style="
-    height:180px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #edf7f8,
-            #d9eef1
-        );
-
-    border-radius:20px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:65px;
-">
-    🐟
-</div>
-""",
-                    unsafe_allow_html=True,
-                )
-
-
-            st.markdown(
-                f"""
-<div style="
-    padding:10px 5px 12px;
-    text-align:right;
-">
-
-    <div style="
-        color:#07566a;
-        font-size:18px;
-        font-weight:900;
-    ">
-        {product[1]}
-    </div>
-
-    <div style="
-        color:#718087;
-        font-size:13px;
-        min-height:42px;
-        margin-top:5px;
-    ">
-        {product[2] or ""}
-    </div>
-
-    <div style="
-        color:#b47b27;
-        font-size:19px;
-        font-weight:900;
-        margin-top:10px;
-    ">
-        {product[3]:,.0f} جنيه
-    </div>
-
-</div>
-""",
-                unsafe_allow_html=True,
-            )
-
-
-            if st.button(
-                "🛒 أضف للسلة",
-                key=f"add_product_{product[0]}",
-                use_container_width=True,
-            ):
-
-                add_to_cart(product)
+    # عرض المنتجات في شبكة (Grid)
+    cols_per_row = 3
+    for i in range(0, len(filtered_products), cols_per_row):
+        cols = st.columns(cols_per_row)
+        for j in range(cols_per_row):
+            idx = i + j
+            if idx < len(filtered_products):
+                prod = filtered_products[idx]
+                with cols[j]:
+                    with st.container():
+                        st.markdown(
+                            f"""
+                            <div style="
+                                background: white;
+                                border: 1px solid rgba(0,0,0,0.08);
+                                border-radius: 20px;
+                                padding: 20px;
+                                margin-bottom: 20px;
+                                box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+                                text-align: right;
+                                direction: rtl;
+                            ">
+                                <div style="font-size: 20px; font-weight: 900; color: #07566a; margin-bottom: 8px;">
+                                    {prod['name']}
+                                </div>
+                                <div style="font-size: 13px; color: #68777d; margin-bottom: 15px; min-height: 40px;">
+                                    {prod['description'] or 'وجبة بحرية طازجة ومميزة'}
+                                </div>
+                                <div style="font-size: 18px; font-weight: 800; color: #10b981; margin-bottom: 15px;">
+                                    {prod['price']} جنيه
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+                        if st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}"):
+                            cart = st.session_state.get("cart", [])
+                            found = False
+                            for item in cart:
+                                if item["id"] == prod["id"]:
+                                    item["quantity"] += 1
+                                    found = True
+                                    break
+                            if not found:
+                                cart.append(
+                                    {
+                                        "id": prod["id"],
+                                        "name": prod["name"],
+                                        "price": prod["price"],
+                                        "quantity": 1,
+                                    }
+                                )
+                            st.session_state.cart = cart
+                            st.success(f"تمت إضافة '{prod['name']}' إلى السلة بنجاح!")
+                            st.rerun()
