@@ -43,40 +43,58 @@ def render_menu():
         """
         <div style="text-align:center; margin:50px 0 25px; direction:rtl;">
             <h2 style="color:#07566a; font-size:36px; font-weight:900;">🍽️ منيو أسماك وادي النيل</h2>
-            <p style="color:#68777d; font-size:16px;">اختر أكلتك البحرية المفضلة وأضفها للسلة بضغطة زر</p>
+            <p style="color:#68777d; font-size:16px;">اختر التصنيف أو ابحث عن أكلتك البحرية المفضلة</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    col_search, col_cat = st.columns([1, 2])
+    # تهيئة التصنيف الحالي في session_state إذا لم يكن موجوداً
+    if "selected_category" not in st.session_state:
+        st.session_state.selected_category = "الكل"
+
+    # شريط البحث العلوي
+    col_search, _ = st.columns([2, 1])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
-    with col_cat:
-        selected_category = st.selectbox("📂 تصفية حسب التصنيف", CATEGORIES)
+    st.markdown("<br>", unsafe_allow_html=True)
 
+    # عرض التصنيفات كأزرار أفقية متجاورة
+    cols = st.columns(len(CATEGORIES))
+    for idx, category in enumerate(CATEGORIES):
+        with cols[idx]:
+            # تمييز الزر النشط بلون مختلف
+            is_active = st.session_state.selected_category == category
+            btn_type = "primary" if is_active else "secondary"
+            if st.button(category, key=f"cat_btn_{idx}", use_container_width=True, type=btn_type):
+                st.session_state.selected_category = category
+                st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # جلب المنتجات وتصفيتها
     products = load_products()
-
     filtered_products = []
     for p in products:
-        match_cat = (selected_category == "الكل") or (p["category"] == selected_category)
+        match_cat = (st.session_state.selected_category == "الكل") or (p["category"] == st.session_state.selected_category)
         match_search = (not search_query) or (search_query.lower() in p["name"].lower())
         if match_cat and match_search:
             filtered_products.append(p)
 
     if not filtered_products:
-        st.warning("⚠️ عذراً، لا توجد وجبات تطابق بحثك حالياً.")
+        st.warning("⚠️ عذراً، لا توجد وجبات تطابق اختيارك حالياً.")
         return
 
+    # عرض المنتجات في شبكة (Grid)
     cols_per_row = 3
     for i in range(0, len(filtered_products), cols_per_row):
-        cols = st.columns(cols_per_row)
+        cols_row = st.columns(cols_per_row)
         for j in range(cols_per_row):
             idx = i + j
             if idx < len(filtered_products):
                 prod = filtered_products[idx]
-                with cols[j]:
+                with cols_row[j]:
                     with st.container():
                         st.markdown(
                             f"""
