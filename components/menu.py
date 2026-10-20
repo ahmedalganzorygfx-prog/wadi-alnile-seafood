@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from database.database import get_connection
 
 CATEGORIES = [
@@ -25,11 +26,6 @@ CATEGORY_IMAGES = {
 }
 
 DEFAULT_IMAGE = "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80"
-
-def get_smart_image(product_name, category_name, db_image):
-    if db_image and db_image.strip() != "":
-        return db_image
-    return CATEGORY_IMAGES.get(category_name, DEFAULT_IMAGE)
 
 def load_products():
     connection = get_connection()
@@ -118,12 +114,21 @@ def render_menu():
                 prod = filtered_products[idx]
                 cat_name = prod["category"]
                 
-                img_url = get_smart_image(prod["name"], cat_name, prod["image"])
-                final_img_url = img_url if img_url and img_url.startswith("http") else "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80"
+                # معالجة ذكية للصور المرفوعة محلياً أو عبر الإنترنت
+                image_to_show = None
+                if prod["image"] and prod["image"].strip() != "":
+                    if prod["image"].startswith("http"):
+                        image_to_show = prod["image"]
+                    else:
+                        if os.path.exists(prod["image"]):
+                            image_to_show = prod["image"]
+                
+                if not image_to_show:
+                    image_to_show = CATEGORY_IMAGES.get(cat_name, DEFAULT_IMAGE)
                 
                 with cols_row[j]:
                     with st.container():
-                        st.image(final_img_url, use_column_width=True)
+                        st.image(image_to_show, use_column_width=True)
                         
                         st.markdown(
                             f"""
