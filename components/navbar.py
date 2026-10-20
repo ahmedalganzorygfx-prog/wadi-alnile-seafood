@@ -1,88 +1,56 @@
 import streamlit as st
 
-
 def render_navbar():
-    cart_count = sum(
-        item["quantity"]
-        for item in st.session_state.get("cart", [])
+    # كود CSS لإخفاء زر القائمة الجانبية الافتراضي لستريمليت وجعل شريط التنقل علوياً بالكامل
+    st.markdown(
+        """
+        <style>
+        [data-testid="stSidebarNav"] {display: none;}
+        header {visibility: hidden;}
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
 
+    # شريط التنقل العلوي الأفقي
     st.markdown(
-        f"""
-        <style>
-        .navbar {{
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(7, 86, 106, 0.1);
-            border-radius: 0 0 25px 25px;
-            padding: 12px 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 30px rgba(7, 86, 106, 0.08);
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }}
-        .nav-inner {{
-            max-width: 1320px;
-            margin: auto;
+        """
+        <div style="
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            direction: rtl;
-        }}
-        .brand {{
-            display: flex;
             align-items: center;
-            gap: 14px;
-            font-size: 22px;
-            font-weight: 900;
-            color: #07566a;
-            text-decoration: none;
-        }}
-        .brand img {{
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #ffb703;
-        }}
-        .hotline-badge {{
-            background: linear-gradient(135deg, #07566a, #032027);
+            background-color: #07566a;
+            padding: 12px 25px;
+            border-radius: 12px;
+            direction: rtl;
             color: white;
-            padding: 8px 18px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 15px rgba(7,86,106,0.3);
-        }}
-        .cart-badge {{
-            background: #eef4f6;
-            color: #07566a;
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 14px;
-            border: 1px solid rgba(7,86,106,0.15);
-        }}
-        </style>
-
-        <div class="navbar">
-            <div class="nav-inner">
-                <a href="#home" class="brand">
-                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=150&q=80" alt="logo">
-                    أسماك وادي النيل
-                </a>
-                <div style="display: flex; gap: 15px; align-items: center;">
-                    <div class="hotline-badge">
-                        ☎️ الخط الساخن: 19974
-                    </div>
-                    <div class="cart-badge">
-                        🛒 السلة ({cart_count})
-                    </div>
-                </div>
+            box-shadow: 0 4px 12px rgba(7,86,106,0.15);
+            margin-bottom: 20px;
+        ">
+            <div style="font-size: 20px; font-weight: 900; color: #ffb703;">
+                🐟 وادي النيل للأسماك
+            </div>
+            <div style="font-size: 14px; font-weight: 600; color: #e2e8f0;">
+                📞 الخط الساخن: <span style="color: #ffb703; font-weight: 900;">19974</span>
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
+
+    # أزرار التنقل السريع الأفقية
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        if st.button("🏠 الرئيسية", use_container_width=True):
+            st.rerun()
+    with col2:
+        if st.button("🍽️ المنيو", use_container_width=True):
+            st.rerun()
+    with col3:
+        if st.button("🛒 سلة المشتريات", use_container_width=True):
+            st.rerun()
+    with col4:
+        if st.button("📋 إتمام الطلب", use_container_width=True):
+            st.rerun()
+    
+    st.markdown("<hr style='margin: 10px 0 25px 0; border: 0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
