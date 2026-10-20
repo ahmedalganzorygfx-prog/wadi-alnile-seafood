@@ -30,7 +30,6 @@ def render_cart():
         with col2:
             st.markdown(f"السعر: {item['price']} ج.م")
         with col3:
-            # زر تحديث الكمية
             new_qty = st.number_input(
                 "الكمية",
                 min_value=1,
