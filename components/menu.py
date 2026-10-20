@@ -124,7 +124,15 @@ def render_menu():
                 
                 with cols_row[j]:
                     with st.container():
-                        st.image(image_to_show, use_column_width=True)
+                        # حاوية صورة بمقاس ثابت وموحد تماماً لجميع البطاقات (ارتفاع 200 بكسل)
+                        st.markdown(
+                            f"""
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 16px 16px 0 0; background-color: #0b2538; display: flex; align-items: center; justify-content: center;">
+                                <img src="{image_to_show}" style="width: 100%; height: 200px; object-fit: cover;" />
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
                         
                         st.markdown(
                             f"""
