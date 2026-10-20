@@ -50,7 +50,6 @@ def load_products():
 def render_menu():
     st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
-    # تنسيق CSS لضمان محاذاة حقل البحث بالكامل من اليمين لليسار
     st.markdown(
         """
         <style>
@@ -71,14 +70,12 @@ def render_menu():
     if "selected_category" not in st.session_state:
         st.session_state.selected_category = "الكل"
 
-    # حقل البحث من اليمين
     col_empty, col_search = st.columns([1, 2])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # عرض التصنيفات كأزرار أفقية (مرتبة من اليمين لليسار وزر الكل في أقصى اليمين)
     cols = st.columns(len(CATEGORIES))
     for idx, category in enumerate(CATEGORIES):
         with cols[idx]:
@@ -154,15 +151,17 @@ def render_menu():
                         )
                         
                         if st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}", use_container_width=True):
-                            cart = st.session_state.get("cart", [])
+                            if "cart" not in st.session_state:
+                                st.session_state.cart = []
+                            
                             found = False
-                            for item in cart:
+                            for item in st.session_state.cart:
                                 if item["id"] == prod["id"]:
                                     item["quantity"] += 1
                                     found = True
                                     break
                             if not found:
-                                cart.append(
+                                st.session_state.cart.append(
                                     {
                                         "id": prod["id"],
                                         "name": prod["name"],
@@ -170,6 +169,5 @@ def render_menu():
                                         "quantity": 1,
                                     }
                                 )
-                            st.session_state.cart = cart
                             st.success(f"تمت إضافة '{prod['name']}' إلى السلة بنجاح!")
                             st.rerun()
