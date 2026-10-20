@@ -1,7 +1,7 @@
 import streamlit as st
 from database.database import get_connection
 
-# تم عكس ترتيب التصنيفات لتكون "الكل" في البداية من جهة اليمين
+# التبويبات مرتبطة بحيث يكون "الكل" في اليمين
 CATEGORIES = [
     "الحلويات",
     "المشروبات",
@@ -14,7 +14,6 @@ CATEGORIES = [
     "الكل",
 ]
 
-# روابط صور معبرة لكل تصنيف
 CATEGORY_IMAGES = {
     "الأسماك": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
     "الجمبري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
@@ -52,6 +51,23 @@ def load_products():
 def render_menu():
     st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
+    # تنسيق CSS لضمان محاذاة حقل البحث من اليمين لليسار (RTL)
+    st.markdown(
+        """
+        <style>
+        div[data-baseweb="input"] {
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        input[type="text"] {
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     st.markdown(
         """
         <div style="text-align:center; margin:50px 0 25px; direction:rtl;">
@@ -65,13 +81,14 @@ def render_menu():
     if "selected_category" not in st.session_state:
         st.session_state.selected_category = "الكل"
 
-    col_search, _ = st.columns([2, 1])
+    # حقل البحث (معكوس ليكون من اليمين)
+    col_empty, col_search = st.columns([1, 2])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # عرض التصنيفات كأزرار أفقية (مرتبة من اليمين لليسار)
+    # عرض التصنيفات كأزرار أفقية (مرتبطة من اليمين لليسار)
     cols = st.columns(len(CATEGORIES))
     for idx, category in enumerate(CATEGORIES):
         with cols[idx]:
@@ -95,7 +112,7 @@ def render_menu():
         st.warning("⚠️ عذراً، لا توجد وجبات تطابق اختيارك حالياً.")
         return
 
-    # عرض المنتجات في شبكة (Grid) باستخدام st.image الأصلية
+    # عرض المنتجات في شبكة (Grid)
     cols_per_row = 3
     for i in range(0, len(filtered_products), cols_per_row):
         cols_row = st.columns(cols_per_row)
