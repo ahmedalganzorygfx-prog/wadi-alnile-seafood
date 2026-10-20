@@ -70,7 +70,8 @@ def render_menu():
     if "selected_category" not in st.session_state:
         st.session_state.selected_category = "الكل"
 
-    col_empty, col_search = st.columns([1, 2])
+    # حقل البحث في منتصف الصفحة تماماً باستخدام أعمدة متوازنة
+    col_left, col_search, col_right = st.columns([1, 2, 1])
     with col_search:
         search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
