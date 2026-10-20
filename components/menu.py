@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as state_st
 from database.database import get_connection
 
 CATEGORIES = [
@@ -13,16 +13,63 @@ CATEGORIES = [
     "الكل",
 ]
 
-CATEGORY_IMAGES = {
-    "الأسماك": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
-    "الجمبري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
-    "السي فود": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80",
-    "الأرز": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
-    "السلطات": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
-    "الشوربة": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
-    "المشروبات": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
-    "الحلويات": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80",
+# قاموس الصور الذكي المطابق للأسماء والتصنيفات بدقة
+FOOD_IMAGES = {
+    # الأسماك
+    "سمك": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
+    "دينيس": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80",
+    "قاروص": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
+    "بلطي": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80",
+    "بوري": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=600&q=80",
+    
+    # الجمبري
+    "جمبري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
+    "كابوريا": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80",
+    
+    # السي فود والأطباق المشكلة
+    "سي فود": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80",
+    "استاكوزا": "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80",
+    "سبيط": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
+    "كاليماري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
+
+    # الأرز
+    "أرز": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
+    "صيادية": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
+
+    # السلطات
+    "سلطة": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    "طحينة": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    "مخلل": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+
+    # الشوربة
+    "شوربة": "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
+
+    # المشروبات
+    "مشروب": "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
+    "عصير": "https://images.unsplash.com/photo-1621263764928-df1444c5e859?auto=format&fit=crop&w=600&q=80",
+    "مياه": "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=600&q=80",
+
+    # الحلويات
+    "حلو": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80",
+    "كنافة": "https://images.unsplash.com/photo-1551024601-bec78aea704b?auto=format&fit=crop&w=600&q=80",
+    "أم علي": "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=600&q=80",
 }
+
+DEFAULT_IMAGE = "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80"
+
+
+def get_smart_image(product_name, category_name, db_image):
+    if db_image and db_image.strip() != "":
+        return db_image
+    
+    # البحث بالاسم الكلي أو الكلمات المفتاحية في اسم الوجبة
+    lower_name = product_name.lower()
+    for keyword, url in FOOD_IMAGES.items():
+        if keyword in lower_name:
+            return url
+            
+    # إذا لم توجد كلمة مفتاحية في الاسم، نلجأ لصورة التصنيف
+    return FOOD_IMAGES.get(category_name, DEFAULT_IMAGE)
 
 
 def load_products():
@@ -48,10 +95,9 @@ def load_products():
 
 
 def render_menu():
-    st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
+    state_st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
-    # تنسيق الألوان والتصميم الداكن الفاخر
-    st.markdown(
+    state_st.markdown(
         """
         <style>
         div[data-baseweb="input"], input {
@@ -73,55 +119,53 @@ def render_menu():
         unsafe_allow_html=True,
     )
 
-    if "selected_category" not in st.session_state:
-        st.session_state.selected_category = "الكل"
+    if "selected_category" not in state_st.session_state:
+        state_st.session_state.selected_category = "الكل"
 
-    # حقل البحث في منتصف الصفحة تماماً
-    col_left, col_search, col_right = st.columns([1, 2, 1])
+    col_left, col_search, col_right = state_st.columns([1, 2, 1])
     with col_search:
-        search_query = st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
+        search_query = state_st.text_input("🔍 ابحث عن وجبة...", placeholder="اكتب اسم الوجبة...")
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    state_st.markdown("<br>", unsafe_allow_html=True)
 
-    # أزرار التصنيفات الأفقية
-    cols = st.columns(len(CATEGORIES))
+    cols = state_st.columns(len(CATEGORIES))
     for idx, category in enumerate(CATEGORIES):
         with cols[idx]:
-            is_active = st.session_state.selected_category == category
+            is_active = state_st.session_state.selected_category == category
             btn_type = "primary" if is_active else "secondary"
-            if st.button(category, key=f"cat_btn_{idx}", use_container_width=True, type=btn_type):
-                st.session_state.selected_category = category
-                st.rerun()
+            if state_st.button(category, key=f"cat_btn_{idx}", use_container_width=True, type=btn_type):
+                state_st.session_state.selected_category = category
+                state_st.rerun()
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    state_st.markdown("<br>", unsafe_allow_html=True)
 
     products = load_products()
     filtered_products = []
     for p in products:
-        match_cat = (st.session_state.selected_category == "الكل") or (p["category"] == st.session_state.selected_category)
+        match_cat = (state_st.session_state.selected_category == "الكل") or (p["category"] == state_st.session_state.selected_category)
         match_search = (not search_query) or (search_query.lower() in p["name"].lower())
         if match_cat and match_search:
             filtered_products.append(p)
 
     if not filtered_products:
-        st.warning("⚠️ عذراً، لا توجد وجبات تطابق اختيارك حالياً.")
+        state_st.warning("⚠️ عذراً، لا توجد وجبات تطابق اختيارك حالياً.")
         return
 
     cols_per_row = 3
     for i in range(0, len(filtered_products), cols_per_row):
-        cols_row = st.columns(cols_per_row)
+        cols_row = state_st.columns(cols_per_row)
         for j in range(cols_per_row):
             idx = i + j
             if idx < len(filtered_products):
                 prod = filtered_products[idx]
                 cat_name = prod["category"]
                 
-                img_url = prod["image"] if prod["image"] else CATEGORY_IMAGES.get(cat_name, "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80")
+                # جلب الصورة الذكية المطابقة لاسم الوجبة
+                img_url = get_smart_image(prod["name"], cat_name, prod["image"])
                 
                 with cols_row[j]:
-                    with st.container():
-                        # عرض الصورة بحجم موحد ومتساوٍ لجميع البطاقات (ارتفاع 200 بكسل)
-                        st.markdown(
+                    with state_st.container():
+                        state_st.markdown(
                             f"""
                             <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 16px 16px 0 0;">
                                 <img src="{img_url}" style="width: 100%; height: 100%; object-fit: cover;" />
@@ -130,8 +174,7 @@ def render_menu():
                             unsafe_allow_html=True,
                         )
                         
-                        # بطاقة الوجبة بخلفية داكنة وتصميم منسق
-                        st.markdown(
+                        state_st.markdown(
                             f"""
                             <div style="
                                 background: #0b2538;
@@ -167,18 +210,18 @@ def render_menu():
                             unsafe_allow_html=True,
                         )
                         
-                        if st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}", use_container_width=True):
-                            if "cart" not in st.session_state:
-                                st.session_state.cart = []
+                        if state_st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}", use_container_width=True):
+                            if "cart" not in state_st.session_state:
+                                state_st.session_state.cart = []
                             
                             found = False
-                            for item in st.session_state.cart:
+                            for item in state_st.session_state.cart:
                                 if item["id"] == prod["id"]:
                                     item["quantity"] += 1
                                     found = True
                                     break
                             if not found:
-                                st.session_state.cart.append(
+                                state_st.session_state.cart.append(
                                     {
                                         "id": prod["id"],
                                         "name": prod["name"],
@@ -186,5 +229,5 @@ def render_menu():
                                         "quantity": 1,
                                     }
                                 )
-                            st.success(f"تمت إضافة '{prod['name']}' إلى السلة بنجاح!")
-                            st.rerun()
+                            state_st.success(f"تمت إضافة '{prod['name']}' إلى السلة بنجاح!")
+                            state_st.rerun()
