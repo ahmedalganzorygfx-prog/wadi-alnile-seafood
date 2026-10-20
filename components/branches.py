@@ -55,8 +55,9 @@ def render_branches():
             if idx < len(branches_data):
                 branch = branches_data[idx]
                 phones_str = " - ".join(branch["phones"])
-                address_info = f"<p style='color: #cbd5e1; font-size: 12px; margin-bottom: 8px;'>{branch.get('address', '')}</p>" if "address" in branch else ""
-                map_btn = f"<a href='{branch['map']}' target='_blank' style='display: inline-block; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: bold; margin-top: 10px;'>🗺️ موقع الفرع على الخريطة</a>" if branch['map'] != "#" else ""
+                
+                address_html = f'<p style="color: #cbd5e1; font-size: 12px; margin-bottom: 8px;">{branch["address"]}</p>' if "address" in branch else ""
+                map_html = f'<a href="{branch["map"]}" target="_blank" style="display: inline-block; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: bold; margin-top: 10px;">🗺️ موقع الفرع على الخريطة</a>' if branch['map'] != "#" else ""
 
                 with cols[j]:
                     st.markdown(
@@ -70,16 +71,15 @@ def render_branches():
                             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
                             text-align: right;
                             direction: rtl;
-                            min-height: 190px;
                         ">
                             <div style="font-size: 18px; font-weight: 900; color: #ffffff; margin-bottom: 8px;">
                                 📍 {branch['name']}
                             </div>
-                            {address_info}
+                            {address_html}
                             <div style="font-size: 13px; color: #ffb703; font-weight: bold; margin-bottom: 10px;">
                                 📞 الهواتف: <span style="color: #ffffff; font-weight: normal;">{phones_str}</span>
                             </div>
-                            {map_btn}
+                            {map_html}
                         </div>
                         """,
                         unsafe_allow_html=True,
