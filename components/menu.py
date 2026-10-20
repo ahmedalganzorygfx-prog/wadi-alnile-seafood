@@ -50,11 +50,10 @@ def load_products():
 def render_menu():
     st.markdown('<div id="menu"></div>', unsafe_allow_html=True)
 
-    # تنسيق الألوان المستوحاة من الصورة المرفقة (خلفية داكنة، بطاقات زرقاء دقيقة، وأزرار سماوية)
+    # تنسيق الألوان والتصميم الداكن الفاخر
     st.markdown(
         """
         <style>
-        /* تخصيص حقل البحث ليتطابق مع الثيم الداكن والفخم */
         div[data-baseweb="input"], input {
             direction: rtl !important;
             text-align: right !important;
@@ -121,9 +120,17 @@ def render_menu():
                 
                 with cols_row[j]:
                     with st.container():
-                        st.image(img_url, use_column_width=True)
+                        # عرض الصورة بحجم موحد ومتساوٍ لجميع البطاقات (ارتفاع 200 بكسل)
+                        st.markdown(
+                            f"""
+                            <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 16px 16px 0 0;">
+                                <img src="{img_url}" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
                         
-                        # بطاقة الوجبة بتصميم مستوحى من الصورة المرفقة (خلفية زرقاء داكنة وحواف دائرية ناعمة)
+                        # بطاقة الوجبة بخلفية داكنة وتصميم منسق
                         st.markdown(
                             f"""
                             <div style="
