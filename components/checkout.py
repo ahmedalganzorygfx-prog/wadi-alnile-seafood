@@ -18,7 +18,6 @@ def render_checkout():
     if not cart:
         return
 
-    # تنسيق الحقول من اليمين لليسار (RTL)
     st.markdown(
         """
         <style>
@@ -48,14 +47,12 @@ def render_checkout():
             if not customer_name or not phone or (order_type == "توصيل للمنزل" and not address):
                 st.error("⚠️ من فضلك أكمل جميع البيانات المطلوبة (الاسم، الهاتف، والعنوان).")
             else:
-                # حساب الإجمالي
                 total_amount = sum(item["price"] * item["quantity"] for item in cart)
                 
                 try:
                     conn = get_connection()
                     cursor = conn.cursor()
                     
-                    # حفظ الطلب في قاعدة البيانات
                     cursor.execute(
                         """
                         INSERT INTO orders (customer_name, phone, address, total_amount, status, created_at)
@@ -65,7 +62,6 @@ def render_checkout():
                     )
                     order_id = cursor.lastrowid
 
-                    # حفظ تفاصيل المنتجات في الطلب
                     for item in cart:
                         cursor.execute(
                             """
@@ -78,9 +74,8 @@ def render_checkout():
                     conn.commit()
                     conn.close()
 
-                    # تفريغ السلة بعد الطلب الناجح
                     st.session_state.cart = []
-                    st.success(f"🎉 تم تسجيل طلبك بنجاح رقم #{orderid}! سنتواصل معك قريباً لتأكيد الطلب. الخط الساخن: 19974")
+                    st.success(f"🎉 تم تسجيل طلبك بنجاح رقم #{order_id}! سنتواصل معك قريباً لتأكيد الطلب. الخط الساخن: 19974")
                     st.balloons()
                 except Exception as e:
-                    st.error(fحدث خطأ أثناء إتمام الطلب: {e}")
+                    st.error(f"حدث خطأ أثناء إتمام الطلب: {e}")
