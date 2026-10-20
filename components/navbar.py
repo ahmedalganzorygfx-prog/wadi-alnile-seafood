@@ -1,18 +1,6 @@
 import streamlit as st
 
 def render_navbar():
-    # كود CSS لإخفاء زر القائمة الجانبية الافتراضي لستريمليت وجعل شريط التنقل علوياً بالكامل
-    st.markdown(
-        """
-        <style>
-        [data-testid="stSidebarNav"] {display: none;}
-        header {visibility: hidden;}
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # شريط التنقل العلوي الأفقي
     st.markdown(
         """
         <div style="
@@ -37,20 +25,3 @@ def render_navbar():
         """,
         unsafe_allow_html=True,
     )
-
-    # أزرار التنقل السريع الأفقية
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        if st.button("🏠 الرئيسية", use_container_width=True):
-            st.rerun()
-    with col2:
-        if st.button("🍽️ المنيو", use_container_width=True):
-            st.rerun()
-    with col3:
-        if st.button("🛒 سلة المشتريات", use_container_width=True):
-            st.rerun()
-    with col4:
-        if st.button("📋 إتمام الطلب", use_container_width=True):
-            st.rerun()
-    
-    st.markdown("<hr style='margin: 10px 0 25px 0; border: 0; border-top: 1px solid #e2e8f0;'>", unsafe_allow_html=True)
