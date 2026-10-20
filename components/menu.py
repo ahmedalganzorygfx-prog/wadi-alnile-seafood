@@ -119,17 +119,11 @@ def render_menu():
                 cat_name = prod["category"]
                 
                 img_url = get_smart_image(prod["name"], cat_name, prod["image"])
+                final_img_url = img_url if img_url and img_url.startswith("http") else "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80"
                 
                 with cols_row[j]:
                     with st.container():
-                        st.markdown(
-                            f"""
-                            <div style="width: 100%; height: 200px; overflow: hidden; border-radius: 16px 16px 0 0;">
-                                <img src="{img_url}" style="width: 100%; height: 100%; object-fit: cover;" />
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
+                        st.image(final_img_url, use_column_width=True)
                         
                         st.markdown(
                             f"""
