@@ -12,7 +12,11 @@ def render_cart():
         unsafe_allow_html=True,
     )
 
-    cart = st.session_state.get("cart", [])
+    # التأكد من وجود السلة في session_state
+    if "cart" not in st.session_state:
+        st.session_state.cart = []
+
+    cart = st.session_state.cart
 
     if not cart:
         st.info("🛒 السلة فارغة حالياً. أضف بعض الوجبات البحرية اللذيذة من المنيو!")
@@ -20,37 +24,35 @@ def render_cart():
 
     total_price = 0
 
-    # عرض عناصر السلة في جدول أو بطاقات منظمة
+    # عرض عناصر السلة
     for idx, item in enumerate(cart):
         item_total = item["price"] * item["quantity"]
         total_price += item_total
 
-        col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
-        with col1:
+        cols = st.columns([3, 2, 2, 1])
+        with cols[0]:
             st.markdown(f"**{item['name']}**")
-        with col2:
+        with cols[1]:
             st.markdown(f"السعر: {item['price']} جنيه")
-        with col3:
-            # التحكم في الكمية
+        with cols[2]:
+            # تحديث الكمية مباشرة مع حفظ التغيير وإعادة التحميل
             new_qty = st.number_input(
                 "الكمية",
                 min_value=1,
-                value=item["quantity"],
-                key=f"qty_{item['id']}_{idx}",
-                label_visibility="collapsed"
+                value=int(item["quantity"]),
+                key=f"cart_qty_{item['id']}_{idx}",
             )
             if new_qty != item["quantity"]:
-                item["quantity"] = new_qty
+                st.session_state.cart[idx]["quantity"] = new_qty
                 st.rerun()
-        with col4:
-            if st.button("❌", key=f"del_{item['id']}_{idx}"):
-                cart.pop(idx)
-                st.session_state.cart = cart
+        with cols[3]:
+            if st.button("❌", key=f"cart_del_{item['id']}_{idx}"):
+                st.session_state.cart.pop(idx)
                 st.rerun()
 
     st.markdown("---")
     
-    # إجمالي السلة
+    # عرض إجمالي السلة
     st.markdown(
         f"""
         <div style="display: flex; justify-content: space-between; align-items: center; direction: rtl; background: #f8fbfb; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
@@ -60,3 +62,8 @@ def render_cart():
         """,
         unsafe_allow_html=True,
     )
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("🗑️ تفريغ السلة بالكامل", use_container_width=True):
+        st.session_state.cart = []
+        st.rerun()
