@@ -12,7 +12,6 @@ def render_cart():
         unsafe_allow_html=True,
     )
 
-    # التأكد من وجود السلة في session_state
     if "cart" not in st.session_state:
         st.session_state.cart = []
 
@@ -24,7 +23,6 @@ def render_cart():
 
     total_price = 0
 
-    # عرض عناصر السلة
     for idx, item in enumerate(cart):
         item_total = item["price"] * item["quantity"]
         total_price += item_total
@@ -35,7 +33,6 @@ def render_cart():
         with cols[1]:
             st.markdown(f"السعر: {item['price']} جنيه")
         with cols[2]:
-            # تحديث الكمية مباشرة مع حفظ التغيير وإعادة التحميل
             new_qty = st.number_input(
                 "الكمية",
                 min_value=1,
@@ -52,7 +49,6 @@ def render_cart():
 
     st.markdown("---")
     
-    # عرض إجمالي السلة
     st.markdown(
         f"""
         <div style="display: flex; justify-content: space-between; align-items: center; direction: rtl; background: #f8fbfb; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
