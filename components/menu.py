@@ -1,5 +1,5 @@
 import streamlit as st
-
+def render_menu():
 # عرض عنوان المطعم بخط كبير في منتصف الصفحة مع إمكانية التحكم في الألوان والحجم
 st.markdown(
     """
