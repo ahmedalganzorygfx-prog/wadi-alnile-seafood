@@ -9,7 +9,7 @@ def render_admin():
         """
         <div style="text-align:right; margin:30px 0 20px 0; direction:rtl;">
             <h2 style="color:#ffffff; font-size:28px; font-weight:900;">⚙️ لوحة التحكم الإدارية</h2>
-            <p style="color:#94a3b8; font-size:14px;">إضافة وتعديل الوجبات ورفع الصور الحقيقية</p>
+            <p style="color:#94a3b8; font-size:14px;">إضافة وتعديل الوجبات ورفع الصور الحقيقية مباشرة</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -24,7 +24,6 @@ def render_admin():
             name = st.text_input("اسم الوجبة")
             price = st.number_input("السعر (بالجنيه)", min_value=0.0, step=5.0)
             
-            # جلب التصنيفات
             conn = get_connection()
             categories = conn.execute("SELECT id, name FROM categories").fetchall()
             cat_dict = {c["name"]: c["id"] for c in categories}
@@ -32,8 +31,7 @@ def render_admin():
             
             description = st.text_area("وصف الوجبة والمكونات")
             
-            # ميزة رفع الصورة الحقيقية
-            uploaded_file = st.file_uploader("📷 رفع صورة الوجبة (PNG, JPG)", type=["png", "jpg", "jpeg"])
+            uploaded_file = st.file_uploader("📷 رفع صورة الوجبة الحقيقية (PNG, JPG)", type=["png", "jpg", "jpeg"])
             
             submitted = st.form_submit_button("حفظ وإضافة الوجبة", use_container_width=True)
             
@@ -42,7 +40,6 @@ def render_admin():
                     st.error("الرجاء إدخال اسم الوجبة على الأقل.")
                 else:
                     image_path = ""
-                    # حفظ الصورة محلياً في مجلد uploads إذا تم رفعها
                     if uploaded_file is not None:
                         os.makedirs("uploads", exist_ok=True)
                         image_path = f"uploads/{uploaded_file.name}"
@@ -60,7 +57,7 @@ def render_admin():
                             (name, description, price, cat_id, image_path)
                         )
                         conn.commit()
-                        conn.success(f"تمت إضافة الوجبة '{name}' بنجاح!")
+                        st.success(f"تمت إضافة الوجبة '{name}' بنجاح!")
                         st.rerun()
                     except Exception as e:
                         st.error(f"حدث خطأ: {e}")
@@ -83,5 +80,5 @@ def render_admin():
                     c.execute("DELETE FROM products WHERE id = ?", (p['id'],))
                     c.commit()
                     c.close()
-                    st.success(f"تم حذف الوجبة بنجاح")
+                    st.success("تم حذف الوجبة بنجاح")
                     st.rerun()
