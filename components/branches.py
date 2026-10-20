@@ -56,31 +56,14 @@ def render_branches():
                 branch = branches_data[idx]
                 phones_str = " - ".join(branch["phones"])
                 
-                address_html = f'<p style="color: #cbd5e1; font-size: 12px; margin-bottom: 8px;">{branch["address"]}</p>' if "address" in branch else ""
-                map_html = f'<a href="{branch["map"]}" target="_blank" style="display: inline-block; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: bold; margin-top: 10px;">🗺️ موقع الفرع على الخريطة</a>' if branch['map'] != "#" else ""
-
                 with cols[j]:
-                    st.markdown(
-                        f"""
-                        <div style="
-                            background: #0b2538;
-                            border: 1px solid rgba(255, 255, 255, 0.08);
-                            border-radius: 16px;
-                            padding: 20px;
-                            margin-bottom: 20px;
-                            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-                            text-align: right;
-                            direction: rtl;
-                        ">
-                            <div style="font-size: 18px; font-weight: 900; color: #ffffff; margin-bottom: 8px;">
-                                📍 {branch['name']}
-                            </div>
-                            {address_html}
-                            <div style="font-size: 13px; color: #ffb703; font-weight: bold; margin-bottom: 10px;">
-                                📞 الهواتف: <span style="color: #ffffff; font-weight: normal;">{phones_str}</span>
-                            </div>
-                            {map_html}
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
+                    with st.container(border=True):
+                        st.markdown(f"<div style='text-align: right; direction: rtl;'><strong>📍 {branch['name']}</strong></div>", unsafe_allow_html=True)
+                        
+                        if "address" in branch:
+                            st.markdown(f"<div style='text-align: right; direction: rtl; color: #cbd5e1; font-size: 12px; margin-top: 5px;'>{branch['address']}</div>", unsafe_allow_html=True)
+                        
+                        st.markdown(f"<div style='text-align: right; direction: rtl; font-size: 13px; color: #ffb703; margin-top: 8px;'>📞 الهواتف: <span style='color: #ffffff;'>{phones_str}</span></div>", unsafe_allow_html=True)
+                        
+                        if branch["map"] != "#":
+                            st.markdown(f"<div style='text-align: right; direction: rtl; margin-top: 10px;'><a href='{branch['map']}' target='_blank' style='color: #38bdf8; text-decoration: none; font-size: 12px; font-weight: bold;'>🗺️ موقع الفرع على الخريطة</a></div>", unsafe_allow_html=True)
