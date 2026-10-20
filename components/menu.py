@@ -81,23 +81,28 @@ def render_menu():
                         st.markdown(
                             f"""
                             <div style="
-                                background: white;
-                                border: 1px solid rgba(0,0,0,0.08);
-                                border-radius: 20px;
-                                padding: 20px;
+                                background: linear-gradient(180deg, #ffffff 0%, #f8fbfb 100%);
+                                border: 1px solid rgba(7, 86, 106, 0.1);
+                                border-radius: 24px;
+                                padding: 22px;
                                 margin-bottom: 20px;
-                                box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+                                box-shadow: 0 10px 30px rgba(7, 86, 106, 0.05);
                                 text-align: right;
                                 direction: rtl;
                             ">
-                                <div style="font-size: 20px; font-weight: 900; color: #07566a; margin-bottom: 8px;">
+                                <div style="font-size: 21px; font-weight: 900; color: #07566a; margin-bottom: 8px;">
                                     {prod['name']}
                                 </div>
-                                <div style="font-size: 13px; color: #68777d; margin-bottom: 15px; min-height: 40px;">
-                                    {prod['description'] or 'وجبة بحرية طازجة ومميزة'}
+                                <div style="font-size: 14px; color: #68777d; margin-bottom: 18px; min-height: 42px; line-height: 1.6;">
+                                    {prod['description'] or 'وجبة بحرية طازجة ومميزة مُجهزة بأعلى معايير الجودة'}
                                 </div>
-                                <div style="font-size: 18px; font-weight: 800; color: #10b981; margin-bottom: 15px;">
-                                    {prod['price']} جنيه
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="font-size: 19px; font-weight: 900; color: #0d9488;">
+                                        {prod['price']} جنيه
+                                    </div>
+                                    <div style="font-size: 12px; background: #e6f4f1; color: #0d9488; padding: 4px 10px; border-radius: 20px; font-weight: bold;">
+                                        طازج يومياً
+                                    </div>
                                 </div>
                             </div>
                             """,
