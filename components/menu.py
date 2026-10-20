@@ -1,19 +1,20 @@
 import streamlit as st
 from database.database import get_connection
 
+# تم عكس ترتيب التصنيفات لتكون "الكل" في البداية من جهة اليمين
 CATEGORIES = [
-    "الكل",
-    "الأسماك",
-    "الجمبري",
-    "السي فود",
-    "الأرز",
-    "السلطات",
-    "الشوربة",
-    "المشروبات",
     "الحلويات",
+    "المشروبات",
+    "الشوربة",
+    "السلطات",
+    "الأرز",
+    "السي فود",
+    "الجمبري",
+    "الأسماك",
+    "الكل",
 ]
 
-# روابط صور معبرة لكل تصنيف (يمكن استبدالها بروابط أو مسارات محلية لاحقاً)
+# روابط صور معبرة لكل تصنيف
 CATEGORY_IMAGES = {
     "الأسماك": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&q=80",
     "الجمبري": "https://images.unsplash.com/photo-1565680314210-5ab350e965cc?auto=format&fit=crop&w=600&q=80",
@@ -70,7 +71,7 @@ def render_menu():
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # عرض التصنيفات كأزرار أفقية
+    # عرض التصنيفات كأزرار أفقية (مرتبة من اليمين لليسار)
     cols = st.columns(len(CATEGORIES))
     for idx, category in enumerate(CATEGORIES):
         with cols[idx]:
@@ -104,15 +105,12 @@ def render_menu():
                 prod = filtered_products[idx]
                 cat_name = prod["category"]
                 
-                # تحديد الصورة (الصورة المحفوظة أو الافتراضية للتصنيف)
                 img_url = prod["image"] if prod["image"] else CATEGORY_IMAGES.get(cat_name, "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80")
                 
                 with cols_row[j]:
                     with st.container():
-                        # 1. عرض الصورة باستخدام دالة st.image الرسمية المباشرة
                         st.image(img_url, use_column_width=True)
                         
-                        # 2. عرض تفاصيل المنتج والأسعار بشكل أنيق
                         st.markdown(
                             f"""
                             <div style="
@@ -149,7 +147,6 @@ def render_menu():
                             unsafe_allow_html=True,
                         )
                         
-                        # 3. زر الإضافة للسلة
                         if st.button(f"🛒 أضف للسلة", key=f"add_{prod['id']}", use_container_width=True):
                             cart = st.session_state.get("cart", [])
                             found = False
