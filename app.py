@@ -1,9 +1,7 @@
 import streamlit as st
 
 from database.database import init_database
-
 from components.navbar import render_navbar
-from components.hero import render_hero
 from components.menu import render_menu
 from components.cart import render_cart
 from components.checkout import render_checkout
@@ -15,9 +13,8 @@ from components.cards import (
 )
 from components.footer import render_footer
 
-
 # =========================================================
-# إعداد الصفحة
+# إعداد الصفحة وإخفاء الشريط الجانبي
 # =========================================================
 
 st.set_page_config(
@@ -27,6 +24,17 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# إخفاء القائمة الجانبية الافتراضية وشريط Streamlit العلوي
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"] {display: none;}
+    [data-testid="collapsedControl"] {display: none;}
+    header {visibility: hidden;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # =========================================================
 # تهيئة Session State للسلة
@@ -44,18 +52,23 @@ init_database()
 
 
 # =========================================================
-# عرض مكونات الموقع
+# عرض مكونات الموقع وترتيبها في المنتصف
 # =========================================================
 
 render_navbar()
 
-# عرض عنوان المطعم بخط كبير في منتصف الصفحة
+# العنوان والشعار في منتصف الصفحة تماماً
 st.markdown(
     """
     <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        margin: 40px 0 20px 0;
+        margin: 30px auto;
         direction: rtl;
+        width: 100%;
     ">
         <h1 style="
             font-size: 52px;
@@ -77,8 +90,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-render_hero()
 
 render_menu()
 
