@@ -2,7 +2,7 @@ import sqlite3
 import urllib.parse
 import streamlit as st
 
-# إعدادات الصفحة والتصميم العام
+# إعدادات الصفحة والتصميم العام (إخفاء القائمة الجانبية تماماً)
 st.set_page_config(
     page_title="مطاعم أسماك وادي النيل",
     page_icon="🦐",
@@ -10,71 +10,84 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# تصميم CSS احترافي وعصري عالي التباين (Luxury Dark & Gold Theme)
+# تصميم CSS متقدم وعصري بالكامل (RTL، تباين عالي، خطوط ظاهرة، وتوحيد البطاقات)
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
+    /* إخفاء القائمة الجانبية الافتراضية بالكامل */
+    [data-testid="stSidebar"] {
+        display: none;
+    }
+
     html, body, [class*="css"] {
-        font-family: 'Cairo', sans-serif;
-        direction: rtl;
-        text-align: right;
-        background-color: #F8F9FA;
-        color: #1A202C;
+        font-family: 'Cairo', sans-serif !important;
+        direction: rtl !important;
+        text-align: right !important;
+        background-color: #F4F6F9 !important;
+        color: #111827 !important;
     }
 
     /* رأس الصفحة الاحترافي الفاخر */
     .hero-banner {
-        background: linear-gradient(135deg, #0B2545 0%, #134074 100%);
+        background: linear-gradient(135deg, #06283D 0%, #1363DF 100%);
         color: #FFFFFF;
-        padding: 35px 20px;
+        padding: 40px 20px;
         border-radius: 16px;
         text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 25px rgba(11, 37, 69, 0.2);
-        border-bottom: 4px solid #D4AF37;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 20px rgba(6, 40, 61, 0.25);
+        border-bottom: 5px solid #FFD700;
     }
     .hero-banner h1 {
         color: #FFFFFF !important;
         font-weight: 900;
-        font-size: 2.5rem;
+        font-size: 2.8rem !important;
         margin-bottom: 10px;
     }
     .hero-banner p {
         color: #E2E8F0 !important;
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1.3rem !important;
+        font-weight: 700;
     }
 
-    /* الأزرار الرئيسية العصرية */
+    /* شريط التنقل العلوي الأفقية */
+    .nav-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    /* تنسيق أزرار Streamlit العامة لتكون واضحة وفخمة */
     .stButton>button {
-        background-color: #0B2545;
-        color: #FFFFFF;
-        border-radius: 10px;
-        border: 2px solid #0B2545;
-        padding: 0.6rem 1.2rem;
-        font-weight: 700;
-        font-size: 1.05rem;
-        width: 100%;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        background-color: #06283D !important;
+        color: #FFFFFF !important;
+        border-radius: 10px !important;
+        border: 2px solid #06283D !important;
+        padding: 0.6rem 1.2rem !important;
+        font-weight: 800 !important;
+        font-size: 1.15rem !important;
+        width: 100% !important;
+        transition: all 0.25s ease-in-out !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     .stButton>button:hover {
-        background-color: #D4AF37;
-        color: #0B2545;
-        border-color: #D4AF37;
+        background-color: #FFD700 !important;
+        color: #06283D !important;
+        border-color: #FFD700 !important;
         transform: translateY(-2px);
     }
 
-    /* بطاقات المنتجات الفخمة والموحدة */
+    /* تصميم البطاقات بمقاس موحد وثابت تماماً */
     .menu-card {
         background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
+        border: 2px solid #E2E8F0;
         border-radius: 16px;
-        padding: 18px;
+        padding: 20px;
         margin-bottom: 25px;
-        height: 480px;
+        height: 490px; /* ارتفاع ثابت لتوحيد جميع البطاقات */
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -83,46 +96,53 @@ st.markdown(
     }
     .menu-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 25px rgba(11, 37, 69, 0.12);
-        border-color: #D4AF37;
+        box-shadow: 0 12px 25px rgba(6, 40, 61, 0.15);
+        border-color: #1363DF;
     }
     .menu-img {
         width: 100%;
-        height: 190px;
+        height: 180px;
         object-fit: cover;
         border-radius: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 15px;
     }
     .menu-title {
-        color: #0B2545;
-        font-weight: 800;
-        font-size: 1.3rem;
+        color: #06283D !important;
+        font-weight: 900 !important;
+        font-size: 1.35rem !important;
         margin-bottom: 8px;
     }
     .menu-desc {
-        color: #4A5568;
-        font-size: 0.95rem;
+        color: #4A5568 !important;
+        font-size: 1.05rem !important;
         line-height: 1.5;
-        height: 45px;
+        height: 50px;
         overflow: hidden;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        font-weight: 600;
     }
     .price-tag {
-        color: #B8860B;
-        font-weight: 900;
-        font-size: 1.4rem;
-        background-color: #FDF8E2;
-        padding: 6px 12px;
+        color: #B7791F !important;
+        font-weight: 900 !important;
+        font-size: 1.45rem !important;
+        background-color: #FEFCBF;
+        padding: 8px 15px;
         border-radius: 8px;
         display: inline-block;
         text-align: center;
         width: 100%;
+        border: 1px solid #ECC94B;
     }
-    
-    /* تنسيق الحقول والنصوص */
-    input, textarea, select {
-        border-radius: 8px !important;
-        border: 1px solid #CBD5E0 !important;
+
+    /* وضوح العناوين والخطوط الكبيرة */
+    h2, h3 {
+        color: #06283D !important;
+        font-weight: 900 !important;
+    }
+    label {
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        color: #2D3748 !important;
     }
     </style>
 """,
@@ -183,7 +203,7 @@ def init_db():
                 "سمك دينيس مشوي زيت وليمون",
                 "أسماك طازجة",
                 220.0,
-                "سمك دينيس بحري طازج مشوي على الفحم أو بالفرن بالزيت والليمون الطبيعي",
+                "سمك دينيس بحري طازج مشوي على الفحم أو بالفرن بالزيت والليمون",
                 "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=500",
             ),
             (
@@ -213,7 +233,7 @@ def init_db():
 conn = init_db()
 cursor = conn.cursor()
 
-# رأس الموقع العصري
+# رأس الموقع العصري الفاخر
 st.markdown(
     """
     <div class="hero-banner">
@@ -224,7 +244,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تهيئة التنقل في الذاكرة
+# تهيئة الذاكرة للتنقل عبر الأزرار
 if "current_page" not in st.session_state:
     st.session_state.current_page = "🏠 الرئيسية وقائمة الطعام"
 
@@ -234,23 +254,22 @@ if "cart" not in st.session_state:
 if "selected_category" not in st.session_state:
     st.session_state.selected_category = "الكل"
 
-# شريط التنقل العلوي بالأزرار الفاخرة
-nav_col1, nav_col2, nav_col3, nav_col4 = st.columns(4)
-
-with nav_col1:
+# أزرار التنقل الرئيسية داخل الصفحة (بديل القائمة الجانبية)
+nav_cols = st.columns(4)
+with nav_cols[0]:
     if st.button("🏠 قائمة الطعام"):
         st.session_state.current_page = "🏠 الرئيسية وقائمة الطعام"
         st.rerun()
-with nav_col2:
+with nav_cols[1]:
     cart_count = sum([item["qty"] for item in st.session_state.cart])
     if st.button(f"🛒 سلة المشتريات ({cart_count})"):
         st.session_state.current_page = "🛒 سلة المشتريات وإتمام الطلب"
         st.rerun()
-with nav_col3:
+with nav_cols[2]:
     if st.button("🔐 لوحة التحكم"):
         st.session_state.current_page = "🔐 لوحة التحكم الإدارية"
         st.rerun()
-with nav_col4:
+with nav_cols[3]:
     if st.button("📍 الفروع وتواصل معنا"):
         st.session_state.current_page = "📍 الفروع وتواصل معنا"
         st.rerun()
@@ -259,13 +278,13 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # 1. الواجهة الرئيسية وقائمة الطعام
 if st.session_state.current_page == "🏠 الرئيسية وقائمة الطعام":
-    st.markdown("<h2 style='color: #0B2545; border-right: 5px solid #D4AF37; padding-right: 10px;'>قائمة المأكولات البحرية الطازجة</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>قائمة المأكولات البحرية الطازجة</h2>", unsafe_allow_html=True)
 
     cursor.execute("SELECT DISTINCT category FROM items WHERE available = 1")
     categories = [row[0] for row in cursor.fetchall()]
     categories.insert(0, "الكل")
 
-    st.markdown("<p style='font-weight: 700; margin-bottom: 10px;'>اختر القسم:</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.2rem; font-weight: 800; margin-bottom: 10px;'>اختر القسم:</p>", unsafe_allow_html=True)
     cat_cols = st.columns(len(categories))
     for idx, cat in enumerate(categories):
         with cat_cols[idx]:
@@ -295,6 +314,7 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
         for idx, item in enumerate(items):
             item_id, name, category, price, description, image_url = item
             with cols[idx % 3]:
+                # بطاقة موحدة المقاسات تماماً
                 st.markdown(
                     f"""
                     <div class="menu-card">
@@ -340,7 +360,7 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
 
 # 2. سلة المشتريات وإتمام الطلب
 elif st.session_state.current_page == "🛒 سلة المشتريات وإتمام الطلب":
-    st.markdown("<h2 style='color: #0B2545; border-right: 5px solid #D4AF37; padding-right: 10px;'>سلة المشتريات ومراجعة الطلب</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>سلة المشتريات ومراجعة الطلب</h2>", unsafe_allow_html=True)
 
     if not st.session_state.cart:
         st.warning("سلة المشتريات فارغة حالياً. انتقل إلى قائمة الطعام لاختيار أطباقك المفضلة!")
@@ -351,9 +371,9 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
         for idx, cart_item in enumerate(st.session_state.cart):
             col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
             with col1:
-                st.write(f"**{cart_item['name']}**")
+                st.markdown(f"<span style='font-size: 1.2rem; font-weight: 800;'>{cart_item['name']}</span>", unsafe_allow_html=True)
             with col2:
-                st.write(f"السعر: {cart_item['price']} ج.م")
+                st.markdown(f"<span style='font-size: 1.1rem; font-weight: 700;'>السعر: {cart_item['price']} ج.م</span>", unsafe_allow_html=True)
             with col3:
                 new_qty = st.number_input(
                     "الكمية",
@@ -371,7 +391,7 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
 
         st.session_state.cart = updated_cart
 
-        st.markdown(f"### إجمالي الفاتورة: <span style='color: #D4AF37;'>{total_amount:.2f} جنيه مصري</span>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='margin-top: 20px;'>إجمالي الفاتورة: <span style='color: #B7791F;'>{total_amount:.2f} جنيه مصري</span></h3>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("<h3>بيانات التوصيل وإتمام الطلب</h3>", unsafe_allow_html=True)
@@ -412,8 +432,8 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
                     
                     st.markdown(
                         f"""
-                        <div style="text-align: center; margin-top: 20px;">
-                            <a href="{whatsapp_url}" target="_blank" style="background-color: #25D366; color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 1.2rem; display: inline-block; box-shadow: 0 4px 10px rgba(37,211,102,0.3);">
+                        <div style="text-align: center; margin-top: 25px;">
+                            <a href="{whatsapp_url}" target="_blank" style="background-color: #25D366; color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 1.3rem; display: inline-block; box-shadow: 0 4px 12px rgba(37,211,102,0.4);">
                                 💬 إرسال تفاصيل الطلب عبر واتساب للمطعم
                             </a>
                         </div>
@@ -425,7 +445,7 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
 
 # 3. لوحة التحكم الإدارية
 elif st.session_state.current_page == "🔐 لوحة التحكم الإدارية":
-    st.markdown("<h2 style='color: #0B2545; border-right: 5px solid #D4AF37; padding-right: 10px;'>لوحة التحكم الإدارية</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>لوحة التحكم الإدارية</h2>", unsafe_allow_html=True)
 
     admin_password = st.text_input("أدخل كلمة مرور الإدارة:", type="password")
     if admin_password == "change-me-now":
@@ -528,14 +548,14 @@ elif st.session_state.current_page == "🔐 لوحة التحكم الإداري
 
 # 4. قسم الفروع وتواصل معنا
 elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
-    st.markdown("<h2 style='color: #0B2545; border-right: 5px solid #D4AF37; padding-right: 10px;'>فروع مطاعم أسماك وادي النيل</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>فروع مطاعم أسماك وادي النيل</h2>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(
             """
             <div style="background: white; padding: 25px; border-radius: 14px; border: 1px solid #E2E8F0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <h3 style="color: #0B2545; margin-bottom: 15px;">فرع الجيزة الرئيسي</h3>
+                <h3 style="color: #06283D; margin-bottom: 15px;">فرع الجيزة الرئيسي</h3>
                 <p><strong>العنوان:</strong> شارع الهرم الرئيسي - الجيزة</p>
                 <p><strong>الهواتف:</strong> 01000000000 / 0233333333</p>
                 <p><strong>الخط الساخن:</strong> 19974</p>
@@ -548,7 +568,7 @@ elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
         st.markdown(
             """
             <div style="background: white; padding: 25px; border-radius: 14px; border: 1px solid #E2E8F0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                <h3 style="color: #0B2545; margin-bottom: 15px;">فرع القاهرة</h3>
+                <h3 style="color: #06283D; margin-bottom: 15px;">فرع القاهرة</h3>
                 <p><strong>العنوان:</strong> مدينة نصر - شارع مكرم عبيد</p>
                 <p><strong>الهواتف:</strong> 01111111111 / 0222222222</p>
                 <p><strong>الخط الساخن:</strong> 19974</p>
@@ -559,4 +579,4 @@ elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
         )
 
     st.markdown("---")
-    st.markdown("<p style='text-align: center; color: #4A5568; font-weight: 600;'>© 2026 مطاعم أسماك وادي النيل. جميع الحقوق محفوظة.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #4A5568; font-weight: 700; font-size: 1.1rem;'>© 2026 مطاعم أسماك وادي النيل. جميع الحقوق محفوظة.</p>", unsafe_allow_html=True)
