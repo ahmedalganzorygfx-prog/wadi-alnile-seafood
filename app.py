@@ -13,7 +13,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* تنسيقات عامة للهوية البصرية */
     .main {
         background-color: #F8F9FA;
         direction: rtl;
@@ -26,6 +25,7 @@ st.markdown(
         border: none;
         padding: 0.5rem 1rem;
         font-weight: bold;
+        width: 100%;
     }
     .stButton>button:hover {
         background-color: #C5A059;
@@ -56,7 +56,6 @@ st.markdown(
 def init_db():
     conn = sqlite3.connect("wadi_alnile.db", check_same_thread=False)
     cursor = conn.cursor()
-    # جدول الأصناف
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS items (
@@ -70,7 +69,6 @@ def init_db():
         )
     """
     )
-    # جدول الطلبات
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS orders (
@@ -87,7 +85,6 @@ def init_db():
     )
     conn.commit()
 
-    # إدخال بيانات تجريبية أولية في حال كانت الجداول فارغة
     cursor.execute("SELECT COUNT(*) FROM items")
     if cursor.fetchone()[0] == 0:
         sample_items = [
@@ -123,7 +120,7 @@ def init_db():
                 "أرز صيادية بالجمبري",
                 "مقبلات وأرز",
                 65.0,
-                "أرز بني بالبصل المحمر وقطع الجمبري الطازجة",
+                "أزر بني بالبصل المحمر وقطع الجمبري الطازجة",
                 "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500",
             ),
         ]
@@ -161,9 +158,12 @@ menu_selection = st.sidebar.selectbox(
     ],
 )
 
-# تهيئة سلة المشتريات في جلسة المستخدم
 if "cart" not in st.session_state:
     st.session_state.cart = []
+
+# تهيئة حالة القسم المحدد في الذاكرة
+if "selected_category" not in st.session_state:
+    st.session_state.selected_category = "الكل"
 
 # 1. الواجهة الرئيسية وقائمة الطعام
 if menu_selection == "🏠 الرئيسية وقائمة الطعام":
@@ -174,15 +174,22 @@ if menu_selection == "🏠 الرئيسية وقائمة الطعام":
     categories = [row[0] for row in cursor.fetchall()]
     categories.insert(0, "الكل")
 
-    selected_category = st.selectbox("اختر القسم:", categories)
+    # عرض التصنيفات على هيئة أزرار أفقية متجاورة
+    st.markdown("##### تصفية حسب القسم:")
+    cat_cols = st.columns(len(categories))
+    for idx, cat in enumerate(categories):
+        with cat_cols[idx]:
+            if st.button(cat, key=f"cat_btn_{idx}"):
+                st.session_state.selected_category = cat
+
     search_query = st.text_input("🔍 بحث عن صنف معين:", "")
 
-    # تصفية الأصناف حسب القسم والبحث
+    # تصفية الأصناف حسب القسم المختار عبر الأزرار والبحث
     query = "SELECT id, name, category, price, description, image_url FROM items WHERE available = 1"
     params = []
-    if selected_category != "الكل":
+    if st.session_state.selected_category != "الكل":
         query += " AND category = ?"
-        params.append(selected_category)
+        params.append(st.session_state.selected_category)
     if search_query:
         query += " AND name LIKE ?"
         params.append(f"%{search_query}%")
@@ -191,7 +198,7 @@ if menu_selection == "🏠 الرئيسية وقائمة الطعام":
     items = cursor.fetchall()
 
     if not items:
-        st.info("لا توجد أصناف متاحة حالياً تطابق بحثك.")
+        st.info("لا توجد أصناف متاحة حالياً تطابق اختيارك.")
     else:
         cols = st.columns(3)
         for idx, item in enumerate(items):
@@ -288,7 +295,6 @@ elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
                         [f"{i['name']} (x{i['qty']})" for i in st.session_state.cart]
                     )
                     
-                    # حفظ الطلب في قاعدة البيانات المحلية
                     cursor.execute(
                         "INSERT INTO orders (customer_name, phone, address, items_summary, total_price) VALUES (?, ?, ?, ?, ?)",
                         (customer_name, phone, address, items_summary, total_amount),
@@ -297,7 +303,6 @@ elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
 
                     st.success("🎉 تم حفظ طلبك بنجاح في نظام المطعم!")
                     
-                    # رقم واتساب المطعم (استبدله بالرقم الفعلي متبوعاً بكود الدولة، مثلاً: 201000000000)
                     whatsapp_number = "201000000000" 
                     
                     msg_text = f"🚨 *طلب جديد من موقع وادي النيل*\n\n" \
@@ -321,7 +326,6 @@ elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
                         unsafe_allow_html=True
                     )
                     
-                    # تفريغ السلة بعد إتمام الطلب
                     st.session_state.cart = []
 
 # 3. لوحة التحكم الإدارية
@@ -338,9 +342,12 @@ elif menu_selection == "🔐 لوحة التحكم الإدارية":
             st.markdown("### إضافة صنف جديد للقائمة")
             with st.form("add_item_form"):
                 new_name = st.text_input("اسم الصنف:")
-                new_cat = st.selectbox(
-                    "القسم:", ["طواجن", "جمبري", "أسماك طازجة", "شوربات", "مقبلات وأرز"]
-                )
+                
+                # استخدام أزرار اختيار القسم داخل نموذج الإدارة
+                st.markdown("اختر القسم:")
+                cat_options = ["طواجن", "جمبري", "أسماك طازجة", "شوربات", "مقبلات وأرز"]
+                selected_new_cat = st.radio("القسم:", cat_options, horizontal=True, label_visibility="collapsed")
+                
                 new_price = st.number_input("السعر (بالجنيه المصري):", min_value=0.0, value=100.0)
                 new_desc = st.text_area("وصف مختصر:")
                 new_img = st.text_input(
@@ -353,7 +360,7 @@ elif menu_selection == "🔐 لوحة التحكم الإدارية":
                     if new_name:
                         cursor.execute(
                             "INSERT INTO items (name, category, price, description, image_url) VALUES (?, ?, ?, ?, ?)",
-                            (new_name, new_cat, new_price, new_desc, new_img),
+                            (new_name, selected_new_cat, new_price, new_desc, new_img),
                         )
                         conn.commit()
                         st.success(f"تمت إضافة الصنف '{new_name}' بنجاح!")
@@ -405,19 +412,20 @@ elif menu_selection == "🔐 لوحة التحكم الإدارية":
                         st.write(f"💰 **الإجمالي:** {o_total} ج.م")
                         st.write(f"📌 **حالة الطلب الحالية:** {o_status}")
 
-                        new_status = st.selectbox(
-                            "تحديث حالة الطلب:",
-                            ["جديد", "قيد التجهيز", "خرج للتوصيل", "مكتمل"],
-                            key=f"status_{o_id}",
-                        )
-                        if st.button("حفظ التحديث", key=f"save_status_{o_id}"):
-                            cursor.execute(
-                                "UPDATE orders SET status = ? WHERE id = ?",
-                                (new_status, o_id),
-                            )
-                            conn.commit()
-                            st.success("تم تحديث حالة الطلب بنجاح!")
-                            st.rerun()
+                        # تحويل قائمة تحديث حالة الطلب إلى أزرار أفقية تفاعلية
+                        st.markdown("تحديث حالة الطلب:")
+                        status_cols = st.columns(4)
+                        statuses = ["جديد", "قيد التجهيز", "خرج للتوصيل", "مكتمل"]
+                        for s_idx, st_val in enumerate(statuses):
+                            with status_cols[s_idx]:
+                                if st.button(st_val, key=f"status_btn_{o_id}_{s_idx}"):
+                                    cursor.execute(
+                                        "UPDATE orders SET status = ? WHERE id = ?",
+                                        (st_val, o_id),
+                                    )
+                                    conn.commit()
+                                    st.success(f"تم تحديث حالة الطلب إلى: {st_val}")
+                                    st.rerun()
 
     elif admin_password != "":
         st.error("كلمة المرور غير صحيحة.")
