@@ -81,15 +81,15 @@ t = translations[st.session_state.lang]
 rtl_ltr = "rtl" if st.session_state.lang == "ar" else "ltr"
 text_align = "right" if st.session_state.lang == "ar" else "left"
 
-# تصميم CSS فاخر وعصري مع دعم اللغتين والتباين العالي
+# تصميم CSS آمن ومنسق بدون أخطاء
 st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
     [data-testid="stSidebar"] {{ display: none; }}
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
+    #MainMenu {{ visibility: hidden; }}
+    footer {{ visibility: hidden; }}
 
     html, body, [class*="css"] {{
         font-family: 'Cairo', sans-serif !important;
@@ -99,7 +99,6 @@ st.markdown(
         color: #1A202C !important;
     }}
 
-    /* الهيدر الفاخر */
     .site-header {{
         background: linear-gradient(135deg, #0B2545 0%, #134074 100%);
         color: #FFFFFF;
@@ -123,7 +122,6 @@ st.markdown(
         margin: 0;
     }}
 
-    /* البانر الترويجي الفاخر للواجهة الرئيسية */
     .hero-banner {{
         background: linear-gradient(rgba(11, 37, 69, 0.85), rgba(19, 64, 116, 0.85)), url('https://images.unsplash.com/photo-1544025162-d76694265947?w=1200');
         background-size: cover;
@@ -176,7 +174,6 @@ st.markdown(
         transform: translateY(-2px);
     }}
 
-    /* البطاقات الموحدة الفاخرة */
     .menu-card {{
         background-color: #FFFFFF;
         border: 2px solid #E2E8F0;
@@ -246,7 +243,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# قاعدة البيانات التهيئة
+# قاعدة البيانات التهيئة مع ضمان وجود الأعمدة
 def init_db():
     conn = sqlite3.connect("wadi_alnile.db", check_same_thread=False)
     cursor = conn.cursor()
@@ -299,7 +296,7 @@ def init_db():
 conn = init_db()
 cursor = conn.cursor()
 
-# شريط تبديل اللغة (Language Switcher) في أعلى الشاشة
+# شريط تبديل اللغة (Language Switcher)
 lang_col1, lang_col2 = st.columns([10, 2])
 with lang_col2:
     if st.session_state.lang == "ar":
@@ -326,8 +323,6 @@ if "current_page" not in st.session_state:
     st.session_state.current_page = "menu"
 if "cart" not in st.session_state:
     st.session_state.cart = []
-if "selected_category" not in st.session_state:
-    st.session_state.selected_category = t["all_cats"]
 
 # شريط التنقل العلوي
 nav_cols = st.columns(4)
@@ -351,7 +346,7 @@ with nav_cols[3]:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 1. قائمة الطعام والواجهة الرئيسية
+# 1. القائمة والواجهة الرئيسية
 if st.session_state.current_page == "menu":
     st.markdown(
         f"""
@@ -439,11 +434,6 @@ if st.session_state.current_page == "menu":
 
     # القائمة الكاملة
     st.markdown(f'<div class="section-title">{t["menu_title"]}</div>', unsafe_allow_html=True)
-    
-    cursor.execute("SELECT DISTINCT category FROM items WHERE available = 1")
-    categories = [row[0] for row in cursor.fetchall()]
-    categories.insert(0, t["all_cats"])
-
     search_query = st.text_input(t["search"], "")
 
     query = "SELECT id, name, category, price, description, image_url FROM items WHERE available = 1"
@@ -489,7 +479,7 @@ if st.session_state.current_page == "menu":
                     st.success("تمت الإضافة للسلة بنجاح!")
                     st.rerun()
 
-# 2. سلة المشتريات وإتمام الطلب
+# 2. السلة وإتمام الطلب
 elif st.session_state.current_page == "cart":
     st.markdown(f'<div class="section-title">{t["cart_title"]}</div>', unsafe_allow_html=True)
 
