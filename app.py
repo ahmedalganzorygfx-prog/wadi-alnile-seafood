@@ -1,4 +1,5 @@
 import sqlite3
+import urllib.parse
 import streamlit as st
 
 # إعدادات الصفحة والتصميم العام (متوافق مع الهوية: الأزرق البترولي والذهبي والأبيض)
@@ -29,9 +30,6 @@ st.markdown(
     .stButton>button:hover {
         background-color: #C5A059;
         color: white;
-    }
-    .css-1544g2n {
-        direction: rtl;
     }
     h1, h2, h3 {
         color: #004D61;
@@ -89,12 +87,12 @@ def init_db():
     )
     conn.commit()
 
-    # إدخال بيانات تجريبية أولية في حال كانت الجدول فارغة
+    # إدخال بيانات تجريبية أولية في حال كانت الجداول فارغة
     cursor.execute("SELECT COUNT(*) FROM items")
     if cursor.fetchone()[0] == 0:
         sample_items = [
             (
-                "طاجن سبيد بصل وإسكندراني",
+                "طاجن سبيط بصل وإسكندراني",
                 "طواجن",
                 180.0,
                 "طاجن سبيط طازج بالخلطة الإسكندراني المميزة",
@@ -219,7 +217,6 @@ if menu_selection == "🏠 الرئيسية وقائمة الطعام":
                     key=f"qty_{item_id}",
                 )
                 if st.button(f"أضف للسلة 🛒", key=f"add_{item_id}"):
-                    # التحقق إذا كان الصنف موجود مسبقاً في السلة وتحديث كميته
                     found = False
                     for cart_item in st.session_state.cart:
                         if cart_item["id"] == item_id:
@@ -237,7 +234,7 @@ if menu_selection == "🏠 الرئيسية وقائمة الطعام":
                         )
                     st.success(f"تمت إضافة {name} إلى السلة بنجاح!")
 
-# 2. سلة المشتريات وإتمام الطلب
+# 2. سلة المشتريات وإتمام الطلب (مع تكامل واتساب)
 elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
     st.subheader("🛒 سلة المشتريات")
 
@@ -281,7 +278,7 @@ elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
             customer_name = st.text_input("الاسم الكريم:")
             phone = st.text_input("رقم الهاتف:")
             address = st.text_area("عنوان التوصيل بالتفصيل:")
-            submit_order = st.form_submit_button("تأكيد وإرسال الطلب 🚀")
+            submit_order = st.form_submit_button("تأكيد وحفظ الطلب 🚀")
 
             if submit_order:
                 if not customer_name or not phone or not address:
@@ -290,14 +287,40 @@ elif menu_selection == "🛒 سلة المشتريات وإتمام الطلب":
                     items_summary = ", ".join(
                         [f"{i['name']} (x{i['qty']})" for i in st.session_state.cart]
                     )
+                    
+                    # حفظ الطلب في قاعدة البيانات المحلية
                     cursor.execute(
                         "INSERT INTO orders (customer_name, phone, address, items_summary, total_price) VALUES (?, ?, ?, ?, ?)",
                         (customer_name, phone, address, items_summary, total_amount),
                     )
                     conn.commit()
 
-                    st.success("🎉 تم استلام طلبك بنجاح! جاري تجهيزه من مطاعم وادي النيل.")
-                    st.info(f"رقم الخط الساخن للتأكيد الفوري: 19974")
+                    st.success("🎉 تم حفظ طلبك بنجاح في نظام المطعم!")
+                    
+                    # رقم واتساب المطعم (استبدله بالرقم الفعلي متبوعاً بكود الدولة، مثلاً: 201000000000)
+                    whatsapp_number = "201000000000" 
+                    
+                    msg_text = f"🚨 *طلب جديد من موقع وادي النيل*\n\n" \
+                               f"👤 *الاسم:* {customer_name}\n" \
+                               f"📱 *الهاتف:* {phone}\n" \
+                               f"📍 *العنوان:* {address}\n\n" \
+                               f"🍽️ *الأصناف المطلوبة:*\n{items_summary}\n\n" \
+                               f"💰 *الإجمالي الكلي:* {total_amount:.2f} ج.م"
+                    
+                    encoded_msg = urllib.parse.quote(msg_text)
+                    whatsapp_url = f"https://wa.me/{whatsapp_number}?text={encoded_msg}"
+                    
+                    st.markdown(
+                        f"""
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="{whatsapp_url}" target="_blank" style="background-color: #25D366; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; display: inline-block;">
+                                💬 إرسال تفاصيل الطلب عبر واتساب للمطعم
+                            </a>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    
                     # تفريغ السلة بعد إتمام الطلب
                     st.session_state.cart = []
 
