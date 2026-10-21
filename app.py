@@ -178,10 +178,12 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# تهيئة قاعدة البيانات SQLite محلياً
+# تهيئة قاعدة البيانات وضمان وجود الأعمدة الجديدة تلقائياً
 def init_db():
     conn = sqlite3.connect("wadi_alnile.db", check_same_thread=False)
     cursor = conn.cursor()
+    
+    # جدول الأصناف
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS items (
@@ -197,6 +199,16 @@ def init_db():
         )
     """
     )
+    
+    # التحقق من وجود الأعمدة الجديدة في حال كانت قاعدة البيانات قديمة، وإضافتها تلقائياً
+    cursor.execute("PRAGMA table_info(items)")
+    columns = [col[1] for col in cursor.fetchall()]
+    if "is_featured" not in columns:
+        cursor.execute("ALTER TABLE items ADD COLUMN is_featured INTEGER DEFAULT 0")
+    if "is_offer" not in columns:
+        cursor.execute("ALTER TABLE items ADD COLUMN is_offer INTEGER DEFAULT 0")
+
+    # جدول الطلبات
     cursor.execute(
         """
         CREATE TABLE IF NOT EXISTS orders (
@@ -326,7 +338,6 @@ st.markdown("<br>", unsafe_allow_html=True)
 # محتوى الصفحات
 # ---------------------------------------------------------
 
-# 1. الرئيسية وقائمة الطعام (متضمنة الواجهة، العروض، والأكثر طلباً)
 if st.session_state.current_page == "🏠 الرئيسية وقائمة الطعام":
     
     # الواجهة الرئيسية (Hero Section)
@@ -340,7 +351,7 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
         unsafe_allow_html=True,
     )
 
-    # قسم العروض اليومية (Special Offers)
+    # قسم العروض اليومية
     st.markdown('<div class="section-title">🔥 عروض وادي النيل المميزة</div>', unsafe_allow_html=True)
     cursor.execute("SELECT id, name, category, price, description, image_url FROM items WHERE is_offer = 1 AND available = 1")
     offers = cursor.fetchall()
@@ -366,7 +377,7 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
                     unsafe_allow_html=True,
                 )
                 qty = st.number_input(f"الكمية لـ {name}", min_value=1, max_value=20, value=1, key=f"offer_qty_{item_id}", label_visibility="collapsed")
-                if st.button(f"أضف عرض العرض 🛒 ({name})", key=f"offer_add_{item_id}"):
+                if st.button(f"أضف العرض 🛒 ({name})", key=f"offer_add_{item_id}"):
                     found = False
                     for cart_item in st.session_state.cart:
                         if cart_item["id"] == item_id:
@@ -378,7 +389,7 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
                     st.success(f"تمت إضافة {name} إلى السلة بنجاح!")
                     st.rerun()
 
-    # قسم الأكثر طلباً (Best Sellers)
+    # قسم الأكثر طلباً
     st.markdown('<div class="section-title">⭐ الأكثر طلباً</div>', unsafe_allow_html=True)
     cursor.execute("SELECT id, name, category, price, description, image_url FROM items WHERE is_featured = 1 AND available = 1")
     featured = cursor.fetchall()
@@ -481,7 +492,6 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
                     st.success(f"تمت إضافة {name} إلى السلة بنجاح!")
                     st.rerun()
 
-# 2. سلة المشتريات وإتمام الطلب
 elif st.session_state.current_page == "🛒 سلة المشتريات وإتمام الطلب":
     st.markdown('<div class="section-title">🛒 سلة المشتريات ومراجعة الطلب</div>', unsafe_allow_html=True)
 
@@ -534,7 +544,7 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
 
                     st.success("🎉 تم حفظ طلبك بنجاح في نظام المطعم!")
                     
-                    whatsapp_number = "201000000000" # استبدل برقم واتساب المطعم الفعلي
+                    whatsapp_number = "201000000000" 
                     msg_text = f"🚨 *طلب جديد من موقع وادي النيل*\n\n👤 *الاسم:* {customer_name}\n📱 *الهاتف:* {phone}\n📍 *العنوان:* {address}\n\n🍽️ *الأصناف المطلوبة:*\n{items_summary}\n\n💰 *الإجمالي الكلي:* {total_amount:.2f} ج.م"
                     
                     encoded_msg = urllib.parse.quote(msg_text)
@@ -552,7 +562,6 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
                     )
                     st.session_state.cart = []
 
-# 3. لوحة التحكم الإدارية
 elif st.session_state.current_page == "🔐 لوحة التحكم الإدارية":
     st.markdown('<div class="section-title">🔐 لوحة التحكم الإدارية</div>', unsafe_allow_html=True)
 
@@ -638,7 +647,6 @@ elif st.session_state.current_page == "🔐 لوحة التحكم الإداري
     else:
         st.info("الرجاء إدخال كلمة مرور الإدارة للوصول إلى لوحة التحكم.")
 
-# 4. الفروع وتواصل معنا
 elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
     st.markdown('<div class="section-title">📍 فروع مطاعم أسماك وادي النيل</div>', unsafe_allow_html=True)
     
@@ -670,9 +678,7 @@ elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
             unsafe_allow_html=True,
         )
 
-# ---------------------------------------------------------
-# الفوتر الثابت (Footer) في أسفل الصفحة دائماً
-# ---------------------------------------------------------
+# الفوتر الثابت (Footer)
 st.markdown(
     """
     <div class="site-footer">
