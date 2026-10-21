@@ -10,16 +10,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# تصميم CSS متقدم وعصري بالكامل (RTL، تباين عالي، خطوط ظاهرة، وتوحيد البطاقات)
+# تصميم CSS متقدم يتضمن تثبيت الهيدر والفوتر وضبط الهيكل بالكامل
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
-    /* إخفاء القائمة الجانبية الافتراضية بالكامل */
+    /* إخفاء القائمة الجانبية والعناصر الافتراضية لـ Streamlit */
     [data-testid="stSidebar"] {
         display: none;
     }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
 
     html, body, [class*="css"] {
         font-family: 'Cairo', sans-serif !important;
@@ -29,30 +31,44 @@ st.markdown(
         color: #111827 !important;
     }
 
-    /* رأس الصفحة الاحترافي الفاخر */
-    .hero-banner {
+    /* الهيدر الثابت في أعلى الصفحة */
+    .site-header {
         background: linear-gradient(135deg, #06283D 0%, #1363DF 100%);
         color: #FFFFFF;
-        padding: 40px 20px;
-        border-radius: 16px;
+        padding: 25px 20px;
+        border-radius: 14px;
         text-align: center;
-        margin-bottom: 25px;
-        box-shadow: 0 8px 20px rgba(6, 40, 61, 0.25);
-        border-bottom: 5px solid #FFD700;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 18px rgba(6, 40, 61, 0.2);
+        border-bottom: 4px solid #FFD700;
     }
-    .hero-banner h1 {
+    .site-header h1 {
         color: #FFFFFF !important;
         font-weight: 900;
-        font-size: 2.8rem !important;
-        margin-bottom: 10px;
+        font-size: 2.4rem !important;
+        margin-bottom: 5px;
     }
-    .hero-banner p {
+    .site-header p {
         color: #E2E8F0 !important;
-        font-size: 1.3rem !important;
+        font-size: 1.2rem !important;
         font-weight: 700;
+        margin: 0;
     }
 
-    /* تنسيق أزرار Streamlit العامة لتكون واضحة وفخمة */
+    /* الفوتر الثابت في أسفل الصفحة */
+    .site-footer {
+        background-color: #06283D;
+        color: #FFFFFF;
+        text-align: center;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 40px;
+        border-top: 4px solid #FFD700;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    /* تنسيق أزرار التنقل */
     .stButton>button {
         background-color: #06283D !important;
         color: #FFFFFF !important;
@@ -224,10 +240,12 @@ def init_db():
 conn = init_db()
 cursor = conn.cursor()
 
-# رأس الموقع العصري الفاخر
+# ---------------------------------------------------------
+# 1. الهيدر الثابت (Header) في أعلى الصفحة دائماً
+# ---------------------------------------------------------
 st.markdown(
     """
-    <div class="hero-banner">
+    <div class="site-header">
         <h1>🌊 مطاعم أسماك وادي النيل 🌊</h1>
         <p>الخط الساخن للطلب والتوصيل السريع: <strong>19974</strong></p>
     </div>
@@ -245,7 +263,7 @@ if "cart" not in st.session_state:
 if "selected_category" not in st.session_state:
     st.session_state.selected_category = "الكل"
 
-# أزرار التنقل الرئيسية داخل الصفحة (بديل القائمة الجانبية)
+# أزرار التنقل الرئيسية تحت الهيدر مباشرة
 nav_cols = st.columns(4)
 with nav_cols[0]:
     if st.button("🏠 قائمة الطعام"):
@@ -267,7 +285,10 @@ with nav_cols[3]:
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 1. الواجهة الرئيسية وقائمة الطعام
+# ---------------------------------------------------------
+# محتوى الصفحات الديناميكي (BODY)
+# ---------------------------------------------------------
+
 if st.session_state.current_page == "🏠 الرئيسية وقائمة الطعام":
     st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>قائمة المأكولات البحرية الطازجة</h2>", unsafe_allow_html=True)
 
@@ -348,7 +369,6 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
                     st.success(f"تمت إضافة {name} إلى السلة بنجاح!")
                     st.rerun()
 
-# 2. سلة المشتريات وإتمام الطلب
 elif st.session_state.current_page == "🛒 سلة المشتريات وإتمام الطلب":
     st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>سلة المشتريات ومراجعة الطلب</h2>", unsafe_allow_html=True)
 
@@ -433,7 +453,6 @@ elif st.session_state.current_page == "🛒 سلة المشتريات وإتما
                     
                     st.session_state.cart = []
 
-# 3. لوحة التحكم الإدارية
 elif st.session_state.current_page == "🔐 لوحة التحكم الإدارية":
     st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>لوحة التحكم الإدارية</h2>", unsafe_allow_html=True)
 
@@ -536,7 +555,6 @@ elif st.session_state.current_page == "🔐 لوحة التحكم الإداري
     else:
         st.info("الرجاء إدخال كلمة مرور الإدارة للوصول إلى لوحة التحكم.")
 
-# 4. قسم الفروع وتواصل معنا
 elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
     st.markdown("<h2 style='border-right: 6px solid #FFD700; padding-right: 12px; margin-bottom: 20px;'>فروع مطاعم أسماك وادي النيل</h2>", unsafe_allow_html=True)
     
@@ -568,5 +586,14 @@ elif st.session_state.current_page == "📍 الفروع وتواصل معنا":
             unsafe_allow_html=True,
         )
 
-    st.markdown("---")
-    st.markdown("<p style='text-align: center; color: #4A5568; font-weight: 700; font-size: 1.1rem;'>© 2026 مطاعم أسماك وادي النيل. جميع الحقوق محفوظة.</p>", unsafe_allow_html=True)
+# ---------------------------------------------------------
+# 2. الفوتر الثابت (Footer) في أسفل الصفحة دائماً
+# ---------------------------------------------------------
+st.markdown(
+    """
+    <div class="site-footer">
+        🌊 © 2026 مطاعم أسماك وادي النيل - جميع الحقوق محفوظة | الخط الساخن: 19974 🌊
+    </div>
+""",
+    unsafe_allow_html=True,
+)
