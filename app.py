@@ -52,14 +52,6 @@ st.markdown(
         font-weight: 700;
     }
 
-    /* شريط التنقل العلوي الأفقية */
-    .nav-container {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 30px;
-    }
-
     /* تنسيق أزرار Streamlit العامة لتكون واضحة وفخمة */
     .stButton>button {
         background-color: #06283D !important;
@@ -87,7 +79,7 @@ st.markdown(
         border-radius: 16px;
         padding: 20px;
         margin-bottom: 25px;
-        height: 490px; /* ارتفاع ثابت لتوحيد جميع البطاقات */
+        height: 490px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -134,7 +126,6 @@ st.markdown(
         border: 1px solid #ECC94B;
     }
 
-    /* وضوح العناوين والخطوط الكبيرة */
     h2, h3 {
         color: #06283D !important;
         font-weight: 900 !important;
@@ -314,7 +305,6 @@ if st.session_state.current_page == "🏠 الرئيسية وقائمة الطع
         for idx, item in enumerate(items):
             item_id, name, category, price, description, image_url = item
             with cols[idx % 3]:
-                # بطاقة موحدة المقاسات تماماً
                 st.markdown(
                     f"""
                     <div class="menu-card">
